@@ -33,13 +33,13 @@ void update_squishy(struct squishy_square *square){
     square->bottomright.y = square->rect->y + square->rect->height;
 
     square->top_handle.x = square->rect->x + square->rect->width / 2;
-    square->top_handle.y = square->rect->y;
+    square->top_handle.y = square->rect->y + square->top_offset; 
     square->bottom_handle.x = square->rect->x + square->rect->width / 2;
-    square->bottom_handle.y = square->rect->y + square->rect->height;
-    square->left_handle.x = square->rect->x;
+    square->bottom_handle.y = square->rect->y + square->rect->height - square->bottom_offset;
+    square->left_handle.x = square->rect->x + square->left_offset;
     square->left_handle.y = square->rect->y + square->rect->height / 2;
-    square->right_handle.x = square->rect->x + square->rect->width;
-    square->right_handle.y = square->rect->y+ square->rect->height / 2;
+    square->right_handle.x = square->rect->x + square->rect->width - square->right_offset;
+    square->right_handle.y = square->rect->y+ square->rect->height / 2;    
 }
 
 void draw_squishy(struct squishy_square *square){

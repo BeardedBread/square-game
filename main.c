@@ -38,7 +38,7 @@ int main()
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
-    struct kinematic_obj player = init_kinematic_obj(30, 30);
+    struct kinematic_obj player = init_kinematic_obj(40, 40);
     player.color = BLUE;
     struct kinematic_obj tile = init_kinematic_obj(900, 100);
     set_position(&player, 400, 300);
@@ -92,8 +92,7 @@ int main()
                     DrawRectangleRec(current->obj->rect, current->obj->color);
                     current = current->next;
                 }
-                DrawTriangle((Vector2){0,0},
-                                (Vector2){screenWidth, screenHeight}, (Vector2){50,0}, BLACK);
+                DrawFPS(100,100);
                 draw_squishy(&sqr);
             EndMode2D();
 
