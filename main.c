@@ -43,6 +43,7 @@ int main()
     struct kinematic_obj tile = init_kinematic_obj(900, 100);
     set_position(&player, 400, 300);
     set_position(&tile, -50, 380);
+    struct squishy_square sqr = init_squishy_square(&player.rect, RED);
 
     // TODO: get a linked list implementation
     struct obj_node tile_node = {.obj=&tile, .next=NULL};
@@ -71,6 +72,12 @@ int main()
             if (IsKeyDown(KEY_SPACE) && place_meeting(&player, (Vector2){0,1}))
                 accel.y -= JUMP_ACCEL;
             move(&player, accel);
+
+            update_squishy(&sqr);
+            Vector2 center = (Vector2){
+                .x = (sqr.topleft.x + sqr.topright.x)/2,
+                .y = (sqr.topleft.y + sqr.bottomleft.y)/2
+            };
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -85,7 +92,9 @@ int main()
                     DrawRectangleRec(current->obj->rect, current->obj->color);
                     current = current->next;
                 }
-                DrawFPS(100, 100); 
+                DrawTriangle((Vector2){0,0},
+                                (Vector2){screenWidth, screenHeight}, (Vector2){50,0}, BLACK);
+                draw_squishy(&sqr);
             EndMode2D();
 
         EndDrawing();

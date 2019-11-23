@@ -17,7 +17,7 @@ void set_position(struct kinematic_obj *obj, int x, int y){
 
 void move(struct kinematic_obj *obj, Vector2 acceleration){
     // Use Euler method for moving
-    float delta = 1.0/(float)GetFPS();
+    double delta = 1.0/60.0;
     obj->velocity.x += acceleration.x * delta;
     obj->velocity.y += acceleration.y * delta;
     obj->rect.x += obj->velocity.x * delta;

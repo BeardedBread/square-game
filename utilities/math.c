@@ -13,16 +13,3 @@ Vector2 dir(Vector2 vec){
 int sign(float val){
     return (val > 0)?1:-1;
 }
-
-Vector2* three_point_beizer(Vector2 start, Vector2 mid, Vector2 end){
-    Vector2 vertices[BEZIER_POINTS];
-    double t;
-    double t_prime;
-    for (int i=0;i<BEZIER_POINTS;++i){
-        t = i/BEZIER_POINTS;
-        t_prime = 1-t;
-        vertices[i].x = t_prime*t_prime*start.x + 2*t_prime*t*mid.x + t*t*end.x;
-        vertices[i].y = t_prime*t_prime*start.y + 2*t_prime*t*mid.y + t*t*end.y;
-    }
-    return vertices;
-}
