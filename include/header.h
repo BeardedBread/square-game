@@ -2,12 +2,37 @@
 #include <stdio.h>
 
 #define BEZIER_POINTS 10
+#define LEFT KEY_LEFT
+#define RIGHT KEY_RIGHT
+#define JUMP KEY_SPACE
+#define DASH KEY_Z
 
 struct kinematic_obj
 {
     Rectangle rect;
     Vector2 velocity;
-    Color color;
+};
+
+enum PLAYER_STATE
+{
+    IDLE = 0,
+    JUMP_SQUAT,
+    JUMPING,
+    FALLING,
+    LANDING,
+    DASH_START,
+    DASHING,
+    DASH_END,
+    RUN_START,
+    RUNNING,
+    RUN_END,
+    TURN_AROUND
+};
+
+struct player_obj
+{
+    struct kinematic_obj kinematic;
+    enum PLAYER_STATE state;
 };
 
 struct squishy_square
@@ -51,7 +76,15 @@ Vector2 dir(Vector2 vec);
 
 // Linked list, linked_list.c
 
+
 // Squishy Square functions, squishy.c
 struct squishy_square init_squishy_square(Rectangle *rect, Color color);
 void update_squishy(struct squishy_square *square);
 void draw_squishy(struct squishy_square *square);
+
+//Player stuff, player.c
+struct player_obj init_player_obj();
+void player_input_check(struct player_obj *player);
+
+//Debug stuff, debug.c
+void state_string(char *str, enum PLAYER_STATE state);

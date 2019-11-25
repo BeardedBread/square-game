@@ -23,13 +23,16 @@
 struct obj_node *HEAD;
 int PLAYER_ACCEL = 1500;
 int JUMP_ACCEL = 15000;
-int GRAV = 750;
+int JUMP_SPD = 350;
+int GRAV = 1000;
 int main() 
 {
     // Initialization
     //--------------------------------------------------------------------------------------
     const int screenWidth = 800;
     const int screenHeight = 450;
+    char current_state[20];
+    char current_spd[50];
 
     InitWindow(screenWidth, screenHeight, "raylib");
 
@@ -38,16 +41,19 @@ int main()
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
-    struct kinematic_obj player = init_kinematic_obj(40, 40);
-    player.color = BLUE;
+    struct player_obj player = {
+        .kinematic = init_kinematic_obj(40, 40),
+        .state = IDLE
+    };
+
     struct kinematic_obj tile = init_kinematic_obj(900, 100);
     set_position(&player, 400, 300);
     set_position(&tile, -50, 380);
-    struct squishy_square sqr = init_squishy_square(&player.rect, RED);
+    struct squishy_square sqr = init_squishy_square(&player.kinematic.rect, RED);
 
     // TODO: get a linked list implementation
     struct obj_node tile_node = {.obj=&tile, .next=NULL};
-    struct obj_node player_node = {.obj=&player, .next=&tile_node};
+    struct obj_node player_node = {.obj=&player.kinematic, .next=&tile_node};
     HEAD = &player_node;
     
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
@@ -58,26 +64,10 @@ int main()
     {
         // Update
         //----------------------------------------------------------------------------------
-        //UpdateCamera(&camera);
-            Vector2 accel = (Vector2){
-                .x = PLAYER_ACCEL*(IsKeyDown(KEY_RIGHT)-IsKeyDown(KEY_LEFT)),
-                .y = 0
-                };
 
-            if (!place_meeting(&player, (Vector2){0,1})){
-                accel.y = GRAV;
-            }
-            accel.x -= player.velocity.x * 6.5;
-            
-            if (IsKeyDown(KEY_SPACE) && place_meeting(&player, (Vector2){0,1}))
-                accel.y -= JUMP_ACCEL;
-            move(&player, accel);
+        player_input_check(&player);
 
-            update_squishy(&sqr);
-            Vector2 center = (Vector2){
-                .x = (sqr.topleft.x + sqr.topright.x)/2,
-                .y = (sqr.topleft.y + sqr.bottomleft.y)/2
-            };
+        update_squishy(&sqr);
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -85,15 +75,19 @@ int main()
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
+            draw_squishy(&sqr);
 
             BeginMode2D(camera);
                 current = HEAD;
                 while(current){
-                    DrawRectangleRec(current->obj->rect, current->obj->color);
+                    DrawRectangleLinesEx(current->obj->rect, 1, BLACK);
                     current = current->next;
                 }
-                DrawFPS(100,100);
-                draw_squishy(&sqr);
+                DrawFPS(0,0);
+                state_string(current_state, player.state);
+                DrawText(current_state, 250, 0, 12, BLACK);
+                sprintf(current_spd, "Velocity: {%.2f,%.2f}", player.kinematic.velocity.x,player.kinematic.velocity.y);
+                DrawText(current_spd, 350, 0, 12, BLACK);
             EndMode2D();
 
         EndDrawing();

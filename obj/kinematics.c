@@ -3,8 +3,7 @@
 struct kinematic_obj init_kinematic_obj(int width, int height){
     struct kinematic_obj obj = {
         .velocity = {0.0f,0.0f},
-        .rect = {0,0,width,height},
-        .color = BLACK
+        .rect = {0,0,width,height}
     };
 
     return obj;

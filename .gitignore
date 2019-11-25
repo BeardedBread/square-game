@@ -1,4 +1,4 @@
-*
-!*.c
-!*.h
-!.gitignore
+Make*
+main.code-workspace
+main
+.vscode
