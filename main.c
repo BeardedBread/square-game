@@ -47,13 +47,16 @@ int main()
     };
 
     struct kinematic_obj tile = init_kinematic_obj(900, 100);
-    set_position(&player, 400, 300);
+    struct kinematic_obj tile2 = init_kinematic_obj(100, 40);
+    set_position(&player.kinematic, 400, 300);
     set_position(&tile, -50, 380);
+    set_position(&tile2, 350, 280);
     struct squishy_square sqr = init_squishy_square(&player.kinematic.rect, RED);
 
     // TODO: get a linked list implementation
     struct obj_node tile_node = {.obj=&tile, .next=NULL};
-    struct obj_node player_node = {.obj=&player.kinematic, .next=&tile_node};
+    struct obj_node tile2_node = {.obj=&tile2, .next=&tile_node};
+    struct obj_node player_node = {.obj=&player.kinematic, .next=&tile2_node};
     HEAD = &player_node;
     
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second

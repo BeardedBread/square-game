@@ -1,19 +1,24 @@
 #include "header.h"
 
 
-#define PLAYER_ACCEL 1500
-#define RUN_INIT_SPD 200
+#define PLAYER_ACCEL 1600
+#define AIR_ACCEL 400
+#define RUN_INIT_SPD 250
 #define JUMP_SPD 500
 #define GRAV 1000
 
 static bool allow_move = true;
-static int jumps = 1;
-static frame_counter = 0;
-static int run_dir = 1;
 static bool allow_friction = true;
+static bool on_ground = true;
+static bool short_hop = false;
+static unsigned int jumps = 1;
+static unsigned int frame_counter = 0;
+static int run_dir = 1;
+static enum PLAYER_STATE state_buffer = IDLE;
+
 const unsigned int run_start_frames = 8;
-const unsigned int jump_squat_frames = 6;
-const unsigned int land_lag_frames = 5;
+const unsigned int jump_squat_frames = 5;
+const unsigned int land_lag_frames = 4;
 
 // The player FSM
 void player_input_check(struct player_obj *player){
@@ -71,39 +76,53 @@ void player_input_check(struct player_obj *player){
 
         break;
         case JUMP_SQUAT:          
-            if(frame_counter<jump_squat_frames)
+            if(frame_counter<jump_squat_frames){
                     ++frame_counter;
+                    if (short_hop != true && !IsKeyDown(JUMP)){
+                        short_hop = true;
+                    }
+            }
             else{
                 frame_counter = 0;
-                if (IsKeyDown(JUMP))
-                    player->kinematic.velocity.y = -JUMP_SPD;
-                else
+                if (short_hop == true)
                     player->kinematic.velocity.y = -JUMP_SPD/2;
+                else
+                    player->kinematic.velocity.y = -JUMP_SPD;
                 player->state = JUMPING;
+                on_ground = false;
+                short_hop = false;
             }
         break;
         case JUMPING:
-            accel.x = PLAYER_ACCEL*(IsKeyDown(KEY_RIGHT)-IsKeyDown(KEY_LEFT));
-            if (player->kinematic.velocity.y > 0)
+            accel.x = AIR_ACCEL*(IsKeyDown(KEY_RIGHT)-IsKeyDown(KEY_LEFT));
+            if (player->kinematic.velocity.y >= 0)
                 player->state = FALLING;
         break;
         case FALLING:
-            accel.x = PLAYER_ACCEL*(IsKeyDown(KEY_RIGHT)-IsKeyDown(KEY_LEFT));
+            accel.x = AIR_ACCEL*(IsKeyDown(KEY_RIGHT)-IsKeyDown(KEY_LEFT));
             if (place_meeting(&player->kinematic, (Vector2){0,1})){
                 player->state = LANDING;
+                on_ground = true;
+                state_buffer = IDLE;
             }
         break;
         case LANDING:
-            if(frame_counter<land_lag_frames)
+            if(frame_counter<land_lag_frames){
                     ++frame_counter;
+                if (IsKeyDown(JUMP))
+                    state_buffer = JUMP_SQUAT;
+            }                              
             else{
                 jumps = 1;
                 frame_counter = 0;
-                if (IsKeyDown(LEFT) || IsKeyDown(RIGHT)){
-                    player->state = RUNNING;
-                }else{
-                    player->state = IDLE;
+                if (state_buffer == JUMP_SQUAT){
+                    player->state = state_buffer;
+                    --jumps;
                 }
+                else if (IsKeyDown(LEFT) || IsKeyDown(RIGHT))
+                    player->state = RUNNING;
+                else
+                    player->state = IDLE;
             }            
         break;
         case DASH_START:
@@ -120,13 +139,24 @@ void player_input_check(struct player_obj *player){
     if (IsKeyPressed(JUMP) && jumps > 0){
         player->state = JUMP_SQUAT;
         allow_friction = true;
+        short_hop = false;
         --jumps;
     }
 
-    if (allow_friction == true)
-        accel.x -= player->kinematic.velocity.x * 8;
+    if (on_ground == true && !place_meeting(&player->kinematic, (Vector2){0,1})){
+        jumps = 0;
+        on_ground = false;
+        allow_friction = true;
+        player->state = FALLING;
+    }
 
-    if (!place_meeting(&player, (Vector2){0,1})){
+    if (allow_friction == true)
+        if (on_ground)
+            accel.x -= player->kinematic.velocity.x * 7.0;
+        else
+            accel.x -= player->kinematic.velocity.x * 1.0;
+
+    if (!place_meeting(&player->kinematic, (Vector2){0,1})){
         accel.y = GRAV;
     }
 
