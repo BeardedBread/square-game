@@ -1,10 +1,14 @@
 #include "header.h"
 
-void three_point_beizerfan(Vector2 start, Vector2 mid, Vector2 end, Vector2* arr);
+#define INTERP_FACTOR 0.5
+#define OFFSET_VALUE 20
 
-struct squishy_square init_squishy_square(Rectangle *rect, Color color){
+void three_point_beizerfan(Vector2 start, Vector2 mid, Vector2 end, Vector2* arr);
+void calc_offsets(struct squishy_square *square);
+
+struct squishy_square init_squishy_square(struct kinematic_obj *parent, Color color){
     struct squishy_square sqr = {
-        .rect = rect,
+        .parent = parent,
         .color = color,
         .topleft = (Vector2){0,0},
         .topright= (Vector2){0,0},
@@ -23,23 +27,78 @@ struct squishy_square init_squishy_square(Rectangle *rect, Color color){
 }
 
 void update_squishy(struct squishy_square *square){
-    square->topleft.x = square->rect->x;
-    square->topleft.y = square->rect->y;
-    square->topright.x = square->rect->x + square->rect->width;
-    square->topright.y = square->rect->y;
-    square->bottomleft.x = square->rect->x;
-    square->bottomleft.y = square->rect->y + square->rect->height;
-    square->bottomright.x = square->rect->x + square->rect->width;
-    square->bottomright.y = square->rect->y + square->rect->height;
 
-    square->top_handle.x = square->rect->x + square->rect->width / 2;
-    square->top_handle.y = square->rect->y + square->top_offset; 
-    square->bottom_handle.x = square->rect->x + square->rect->width / 2;
-    square->bottom_handle.y = square->rect->y + square->rect->height - square->bottom_offset;
-    square->left_handle.x = square->rect->x + square->left_offset;
-    square->left_handle.y = square->rect->y + square->rect->height / 2;
-    square->right_handle.x = square->rect->x + square->rect->width - square->right_offset;
-    square->right_handle.y = square->rect->y+ square->rect->height / 2;    
+    calc_offsets(square);
+
+    // Update to follow the player
+    square->topleft.x = square->parent->rect.x;
+    square->topleft.y = square->parent->rect.y;
+    square->topright.x = square->parent->rect.x + square->parent->rect.width;
+    square->topright.y = square->parent->rect.y;
+    square->bottomleft.x = square->parent->rect.x;
+    square->bottomleft.y = square->parent->rect.y + square->parent->rect.height;
+    square->bottomright.x = square->parent->rect.x + square->parent->rect.width;
+    square->bottomright.y = square->parent->rect.y + square->parent->rect.height;
+
+    square->top_handle.x = square->parent->rect.x + square->parent->rect.width / 2;
+    square->top_handle.y = square->parent->rect.y + square->top_offset; 
+    square->bottom_handle.x = square->parent->rect.x + square->parent->rect.width / 2;
+    square->bottom_handle.y = square->parent->rect.y + square->parent->rect.height - square->bottom_offset;
+    square->left_handle.x = square->parent->rect.x + square->left_offset;
+    square->left_handle.y = square->parent->rect.y + square->parent->rect.height / 2;
+    square->right_handle.x = square->parent->rect.x + square->parent->rect.width - square->right_offset;
+    square->right_handle.y = square->parent->rect.y + square->parent->rect.height / 2;
+
+}
+
+void calc_offsets(struct squishy_square *square){
+    // TODO: Normalise the offsets
+    double left_target_offset = 0;
+    double right_target_offset = 0;
+    double top_target_offset = 0;
+    double bottom_target_offset = 0;
+    
+    if (IsKeyDown(KEY_A)){
+        left_target_offset = OFFSET_VALUE;
+        if (place_meeting(square->parent, (Vector2){1, 0})){
+            top_target_offset = -OFFSET_VALUE / 2;
+            bottom_target_offset = -OFFSET_VALUE / 2;
+        }else{
+            right_target_offset = -OFFSET_VALUE * 0.8;
+        }
+    }
+    if (IsKeyDown(KEY_D)){
+        right_target_offset = OFFSET_VALUE;
+        if (place_meeting(square->parent, (Vector2){-1, 0})){
+            top_target_offset = -OFFSET_VALUE / 2;
+            bottom_target_offset = -OFFSET_VALUE / 2;
+        }else{
+            left_target_offset = -OFFSET_VALUE * 0.8;
+        }
+    }
+    if (IsKeyDown(KEY_W)){
+        top_target_offset = OFFSET_VALUE;
+        if (place_meeting(square->parent, (Vector2){0, 1})){
+            right_target_offset = -OFFSET_VALUE / 2;
+            left_target_offset = -OFFSET_VALUE / 2;
+        }else{
+            bottom_target_offset = -OFFSET_VALUE * 0.8;
+        }
+    }
+    if (IsKeyDown(KEY_S)){
+        bottom_target_offset = OFFSET_VALUE;
+        if (place_meeting(square->parent, (Vector2){0, -1})){
+            right_target_offset = -OFFSET_VALUE / 2;
+            left_target_offset = -OFFSET_VALUE / 2;
+        }else{
+            top_target_offset = -OFFSET_VALUE * 0.8;
+        }
+    }
+
+    approach(&square->left_offset, left_target_offset, INTERP_FACTOR);
+    approach(&square->right_offset, right_target_offset, INTERP_FACTOR);
+    approach(&square->top_offset, top_target_offset, INTERP_FACTOR);
+    approach(&square->bottom_offset, bottom_target_offset, INTERP_FACTOR);
 }
 
 void draw_squishy(struct squishy_square *square){

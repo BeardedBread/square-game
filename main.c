@@ -1,7 +1,5 @@
 /*******************************************************************************************
 *
-*   raylib [core] example - Basic 3d example
-*
 *   Welcome to raylib!
 *
 *   To compile example, just press F5.
@@ -49,14 +47,12 @@ int main()
     struct kinematic_obj tile = init_kinematic_obj(900, 100);
     struct kinematic_obj tile2 = init_kinematic_obj(100, 40);
     struct kinematic_obj tile3 = init_kinematic_obj(100, 40);
-    set_position(&player.kinematic, 400, 300);
+    set_position(&player.kinematic, 400, 100);
     set_position(&tile, -50, 380);
-    set_position(&tile2, 350, 280);
-    set_position(&tile3, 250, 167);
-    struct squishy_square sqr = init_squishy_square(&player.kinematic.rect, RED);
+    set_position(&tile2, 350, 330);
+    set_position(&tile3, 250, 270);
+    struct squishy_square sqr = init_squishy_square(&player.kinematic, RED);
 
-    // TODO: get a linked list implementation
-    //create_list();
     add_node(&tile);
     add_node(&tile2);
     add_node(&tile3);

@@ -13,3 +13,7 @@ Vector2 dir(Vector2 vec){
 int sign(float val){
     return (val > 0)?1:-1;
 }
+
+void approach(double *val, double target, float f){
+    *val += (target - *val) * f;
+}

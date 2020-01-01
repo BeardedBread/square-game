@@ -44,7 +44,7 @@ struct player_obj
 
 struct squishy_square
 {
-    Rectangle *rect;
+    struct kinematic_obj *parent;
     Color color;
     Vector2 topleft;
     Vector2 topright;
@@ -70,6 +70,7 @@ bool place_meeting(struct kinematic_obj *obj, Vector2 dir);
 long mag(Vector2 vec);
 int sign(float val);
 Vector2 dir(Vector2 vec);
+void approach(double *val, double target, float f);
 
 // Linked list, linked_list.c
 extern struct kinematic_obj_node *kinematic_HEAD;
@@ -79,7 +80,7 @@ void add_node(struct kinematic_obj *obj);
 void free_list(void);
 
 // Squishy Square functions, squishy.c
-struct squishy_square init_squishy_square(Rectangle *rect, Color color);
+struct squishy_square init_squishy_square(struct kinematic_obj *parent, Color color);
 void update_squishy(struct squishy_square *square);
 void draw_squishy(struct squishy_square *square);
 
