@@ -3,9 +3,9 @@
 
 #define PLAYER_ACCEL 1600
 #define AIR_ACCEL 400
-#define RUN_INIT_SPD 250
+#define RUN_INIT_SPD 270
 #define JUMP_SPD 500
-#define GRAV 1000
+#define GRAV 1200
 
 static bool allow_move = true;
 static bool allow_friction = true;
@@ -16,9 +16,9 @@ static unsigned int frame_counter = 0;
 static int run_dir = 1;
 static enum PLAYER_STATE state_buffer = IDLE;
 
-const unsigned int run_start_frames = 8;
-const unsigned int jump_squat_frames = 5;
-const unsigned int land_lag_frames = 4;
+const unsigned int run_start_frames = 10;
+const unsigned int jump_squat_frames = 4;
+const unsigned int land_lag_frames = 6;
 
 // The player FSM
 void player_input_check(struct player_obj *player){
@@ -30,7 +30,7 @@ void player_input_check(struct player_obj *player){
         case IDLE:
             if (IsKeyDown(LEFT) || IsKeyDown(RIGHT)){
                 player->state = RUN_START;
-                allow_friction = false;
+                //allow_friction = false;
                 player->kinematic.velocity.x = (IsKeyDown(KEY_RIGHT)-IsKeyDown(KEY_LEFT)) * RUN_INIT_SPD;
             }
         break;
@@ -39,12 +39,15 @@ void player_input_check(struct player_obj *player){
             // Run Opposite Direction
             if ((IsKeyPressed(LEFT) && run_dir == 1) || (IsKeyPressed(RIGHT) && run_dir == -1)){
                 frame_counter = 0;
-                player->kinematic.velocity.x *= -1;
+                player->kinematic.velocity.x = -run_dir * RUN_INIT_SPD;
             }else{
                 // Complete the run startup
-                if(frame_counter<run_start_frames)
+                if(frame_counter<run_start_frames){
                     ++frame_counter;
-                else{
+                    if (IsKeyDown(LEFT) || IsKeyDown(RIGHT)){
+                        player->kinematic.velocity.x = run_dir * RUN_INIT_SPD;
+                    }
+                }else{
                     frame_counter = 0;
                     allow_friction = true;
                     player->state = RUNNING;

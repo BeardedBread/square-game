@@ -1,7 +1,8 @@
 #include <raylib.h>
 #include <stdio.h>
 
-#define BEZIER_POINTS 10
+// Global Constants
+#define BEZIER_POINTS 7
 #define LEFT KEY_LEFT
 #define RIGHT KEY_RIGHT
 #define JUMP KEY_SPACE
@@ -11,6 +12,12 @@ struct kinematic_obj
 {
     Rectangle rect;
     Vector2 velocity;
+};
+
+struct kinematic_obj_node
+{
+    struct kinematic_obj *obj;
+    struct kinematic_obj_node *next;
 };
 
 enum PLAYER_STATE
@@ -53,16 +60,6 @@ struct squishy_square
     double right_offset;
 };
 
-// Placeholder collision checking structure. Use linked list for now
-// Need to implement some sort of tree structure for efficient collision checking
-struct obj_node
-{
-    struct kinematic_obj *obj;
-    struct obj_node *next;
-};
-
-extern struct obj_node *HEAD;
-
 // Object functions, kinematics.c
 struct kinematic_obj init_kinematic_obj(int width, int height);
 void move(struct kinematic_obj *obj, Vector2 acceleration);
@@ -75,7 +72,11 @@ int sign(float val);
 Vector2 dir(Vector2 vec);
 
 // Linked list, linked_list.c
-
+extern struct kinematic_obj_node *kinematic_HEAD;
+void create_list(void);
+void add_node(struct kinematic_obj *obj);
+//struct kinematic_obj_node **get_list();
+void free_list(void);
 
 // Squishy Square functions, squishy.c
 struct squishy_square init_squishy_square(Rectangle *rect, Color color);

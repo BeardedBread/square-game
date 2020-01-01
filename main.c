@@ -20,7 +20,7 @@
 ********************************************************************************************/
 
 #include "header.h"
-struct obj_node *HEAD;
+extern struct kinematic_obj_node *kinematic_HEAD;
 int PLAYER_ACCEL = 1500;
 int JUMP_ACCEL = 15000;
 int JUMP_SPD = 350;
@@ -48,20 +48,23 @@ int main()
 
     struct kinematic_obj tile = init_kinematic_obj(900, 100);
     struct kinematic_obj tile2 = init_kinematic_obj(100, 40);
+    struct kinematic_obj tile3 = init_kinematic_obj(100, 40);
     set_position(&player.kinematic, 400, 300);
     set_position(&tile, -50, 380);
     set_position(&tile2, 350, 280);
+    set_position(&tile3, 250, 167);
     struct squishy_square sqr = init_squishy_square(&player.kinematic.rect, RED);
 
     // TODO: get a linked list implementation
-    struct obj_node tile_node = {.obj=&tile, .next=NULL};
-    struct obj_node tile2_node = {.obj=&tile2, .next=&tile_node};
-    struct obj_node player_node = {.obj=&player.kinematic, .next=&tile2_node};
-    HEAD = &player_node;
+    //create_list();
+    add_node(&tile);
+    add_node(&tile2);
+    add_node(&tile3);
+    add_node(&player.kinematic);
     
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
-    struct obj_node *current;
+    struct kinematic_obj_node *current;
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
@@ -81,7 +84,7 @@ int main()
             draw_squishy(&sqr);
 
             BeginMode2D(camera);
-                current = HEAD;
+                current = kinematic_HEAD;
                 while(current){
                     DrawRectangleLinesEx(current->obj->rect, 1, BLACK);
                     current = current->next;
@@ -99,6 +102,7 @@ int main()
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
+    free_list();
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 
