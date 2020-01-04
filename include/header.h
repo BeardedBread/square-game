@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 // Global Constants
-#define BEZIER_POINTS 7
+#define BEZIER_POINTS 5
 #define LEFT KEY_LEFT
 #define RIGHT KEY_RIGHT
 #define JUMP KEY_SPACE
@@ -46,18 +46,17 @@ struct squishy_square
 {
     struct kinematic_obj *parent;
     Color color;
-    Vector2 topleft;
-    Vector2 topright;
-    Vector2 bottomleft;
-    Vector2 bottomright;
-    Vector2 top_handle;
-    Vector2 bottom_handle;
-    Vector2 left_handle;
-    Vector2 right_handle;
+    Vector2 center;
+    
     double top_offset;
     double bottom_offset;
     double left_offset;
     double right_offset;
+
+    Vector2 top_vertices[BEZIER_POINTS+1];
+    Vector2 bottom_vertices[BEZIER_POINTS+1];
+    Vector2 left_vertices[BEZIER_POINTS+1];
+    Vector2 right_vertices[BEZIER_POINTS+1];
 };
 
 // Object functions, kinematics.c

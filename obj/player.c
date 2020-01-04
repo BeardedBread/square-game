@@ -3,7 +3,7 @@
 
 #define PLAYER_ACCEL 1600
 #define AIR_ACCEL 400
-#define RUN_INIT_SPD 270
+#define RUN_INIT_SPD 230
 #define JUMP_SPD 500
 #define GRAV 1200
 
