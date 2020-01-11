@@ -22,23 +22,22 @@ struct squishy_square init_squishy_square(struct kinematic_obj *parent, Color co
 void update_squishy(struct squishy_square *square){
 
     calc_offsets(square);
-    // TODO: Should be centered at zero, then transformed during drawing
 
     // Update to follow the player
-    Vector2 topleft = (Vector2){square->parent->rect.x, square->parent->rect.y};
-    Vector2 topright = (Vector2){square->parent->rect.x+square->parent->rect.width, square->parent->rect.y};
-    Vector2 bottomleft = (Vector2){square->parent->rect.x, square->parent->rect.y+ square->parent->rect.height};
-    Vector2 bottomright = (Vector2){square->parent->rect.x+ square->parent->rect.width, 
-    square->parent->rect.y+ square->parent->rect.height};
-
     // This is assuming the shape remains AABB
-    square->center.x = (topleft.x + topright.x)/2;
-    square->center.y = (topleft.y + bottomleft.y)/2;
+    square->center.x = square->parent->rect.x + square->parent->rect.width/2;
+    square->center.y = square->parent->rect.y + square->parent->rect.height/2;
 
-    Vector2 top_handle = (Vector2){square->center.x, topleft.y + square->top_offset};
-    Vector2 bottom_handle = (Vector2){square->center.x, bottomright.y - square->bottom_offset};
-    Vector2 left_handle = (Vector2){topleft.x + square->left_offset, square->center.y};
-    Vector2 right_handle = (Vector2){topright.x - square->right_offset, square->center.y};
+    // Vertices are centered at zero, then transformed during drawing
+    Vector2 topleft = (Vector2){-square->parent->rect.width/2, -square->parent->rect.height/2};
+    Vector2 topright = (Vector2){square->parent->rect.width/2, -square->parent->rect.height/2};
+    Vector2 bottomleft = (Vector2){-square->parent->rect.width/2, square->parent->rect.height/2};
+    Vector2 bottomright = (Vector2){square->parent->rect.width/2, square->parent->rect.height/2};
+
+    Vector2 top_handle = (Vector2){0, topleft.y + square->top_offset};
+    Vector2 bottom_handle = (Vector2){0, bottomright.y - square->bottom_offset};
+    Vector2 left_handle = (Vector2){topleft.x + square->left_offset, 0};
+    Vector2 right_handle = (Vector2){topright.x - square->right_offset, 0};
 
     three_point_beizer(topleft, top_handle, topright, square->top_vertices);
     three_point_beizer(topright, right_handle, bottomright, square->right_vertices);
@@ -105,14 +104,16 @@ void calc_offsets(struct squishy_square *square){
 
 void draw_squishy(struct squishy_square *square){
     rlPushMatrix();
-        //rlScalef(0.5, 0.5, 1.0);          // Scale Sun
-        //rlTranslatef(square->center.x, square->center.y, 0.0f);
+        rlTranslatef(square->center.x, square->center.y, 0.0f);
+        //rlTranslatef(0.0f, square->parent->rect.height/2, 0.0f);
+        //rlScalef(0.5, 0.5, 1.0);
+        //rlTranslatef(0.0f, -square->parent->rect.height/2, 0.0f);
         int i;
         for(i=0;i<BEZIER_POINTS;++i){
-            DrawTriangle(square->top_vertices[i], square->center, square->top_vertices[i+1], square->color);
-            DrawTriangle(square->bottom_vertices[i], square->center, square->bottom_vertices[i+1], square->color);
-            DrawTriangle(square->left_vertices[i], square->center, square->left_vertices[i+1], square->color);
-            DrawTriangle(square->right_vertices[i], square->center, square->right_vertices[i+1],square->color);
+            DrawTriangle(square->top_vertices[i], (Vector2){0,0}, square->top_vertices[i+1], square->color);
+            DrawTriangle(square->bottom_vertices[i], (Vector2){0,0}, square->bottom_vertices[i+1], square->color);
+            DrawTriangle(square->left_vertices[i], (Vector2){0,0}, square->left_vertices[i+1], square->color);
+            DrawTriangle(square->right_vertices[i], (Vector2){0,0}, square->right_vertices[i+1],square->color);
         }
     rlPopMatrix();
 }
