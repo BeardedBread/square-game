@@ -139,6 +139,19 @@ void player_input_check(struct player_obj *player){
         break;
     }
 
+    // TODO: Add a key to resize the rect and see what happens?
+    if (IsKeyDown(KEY_P)){
+        player->kinematic.set_scale = 1.2;
+    }
+    else if (IsKeyDown(KEY_O)){
+        player->kinematic.set_scale = 0.85;
+    }else{
+        player->kinematic.set_scale = 1;
+    }
+    approach(&player->kinematic.scale, player->kinematic.set_scale, 0.5);
+    player->kinematic.rect.width = player->kinematic.scale * player->kinematic.ori_width;
+    player->kinematic.rect.height = player->kinematic.scale * player->kinematic.ori_height;
+
     if (IsKeyPressed(JUMP) && jumps > 0){
         player->state = JUMP_SQUAT;
         allow_friction = true;

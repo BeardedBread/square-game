@@ -12,6 +12,10 @@ struct kinematic_obj
 {
     Rectangle rect;
     Vector2 velocity;
+    double scale;
+    double set_scale;
+    int ori_width;
+    int ori_height;
 };
 
 struct kinematic_obj_node

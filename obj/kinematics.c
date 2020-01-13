@@ -4,7 +4,11 @@ extern struct kinematic_obj_node *kinematic_HEAD;
 struct kinematic_obj init_kinematic_obj(int width, int height){
     struct kinematic_obj obj = {
         .velocity = {0.0f,0.0f},
-        .rect = {0,0,width,height}
+        .rect = {0,0,width,height},
+        .scale = 1.0,
+        .set_scale = 1.0,
+        .ori_width = width,
+        .ori_height = height
     };
 
     return obj;
@@ -30,10 +34,18 @@ void move(struct kinematic_obj *obj, Vector2 acceleration){
             if (CheckCollisionRecs(obj->rect, current->obj->rect)){
                 collide_rect = GetCollisionRec(obj->rect, current->obj->rect);                
                 if(collide_rect.width < collide_rect.height){
-                    obj->rect.x -= sign(obj->velocity.x) * collide_rect.width;
+                    if (!place_meeting(obj, (Vector2){-collide_rect.width,0})){
+                        obj->rect.x -= collide_rect.width;
+                    }else{
+                        obj->rect.x += collide_rect.width;
+                    }
                     obj->velocity.x = 0;
                 }else{
-                    obj->rect.y -= sign(obj->velocity.y) * collide_rect.height;
+                    if (!place_meeting(obj, (Vector2){0,-collide_rect.height})){
+                        obj->rect.y -= collide_rect.height;
+                    }else{
+                        obj->rect.y += collide_rect.height;
+                    }
                     obj->velocity.y = 0;
                 }
             }
