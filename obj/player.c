@@ -20,6 +20,8 @@ const unsigned int run_start_frames = 10;
 const unsigned int jump_squat_frames = 4;
 const unsigned int land_lag_frames = 6;
 
+extern unsigned int PLAYER_SIZE = 40;
+
 // The player FSM
 void player_input_check(struct player_obj *player){
     Vector2 accel = (Vector2){
@@ -140,17 +142,29 @@ void player_input_check(struct player_obj *player){
     }
 
     // TODO: Add a key to resize the rect and see what happens?
-    if (IsKeyDown(KEY_P)){
-        player->kinematic.set_scale = 1.2;
-    }
-    else if (IsKeyDown(KEY_O)){
-        player->kinematic.set_scale = 0.85;
-    }else{
-        player->kinematic.set_scale = 1;
-    }
-    approach(&player->kinematic.scale, player->kinematic.set_scale, 0.5);
-    player->kinematic.rect.width = player->kinematic.scale * player->kinematic.ori_width;
-    player->kinematic.rect.height = player->kinematic.scale * player->kinematic.ori_height;
+    Vector2 offset = (Vector2){0,0};
+    player->kinematic.set_dim_reduction[0] = 0;
+    if (IsKeyDown(KEY_J))
+        player->kinematic.set_dim_reduction[0] = 10;
+    
+    player->kinematic.set_dim_reduction[1] = 0;
+    if (IsKeyDown(KEY_L))
+        player->kinematic.set_dim_reduction[1] = 10;
+
+    player->kinematic.set_dim_reduction[2] = 0;
+    if (IsKeyDown(KEY_I))
+        player->kinematic.set_dim_reduction[2] = 10;
+
+    player->kinematic.set_dim_reduction[3] = 0;
+    if (IsKeyDown(KEY_K))
+        player->kinematic.set_dim_reduction[3] = 10;
+
+    approach(&player->kinematic.dim_reduction[0], player->kinematic.set_dim_reduction[0], 0.5);
+    approach(&player->kinematic.dim_reduction[1], player->kinematic.set_dim_reduction[1], 0.5);
+    approach(&player->kinematic.dim_reduction[2], player->kinematic.set_dim_reduction[2], 0.5);
+    approach(&player->kinematic.dim_reduction[3], player->kinematic.set_dim_reduction[3], 0.5);
+
+    //scale_rect(&player->kinematic);
 
     if (IsKeyPressed(JUMP) && jumps > 0){
         player->state = JUMP_SQUAT;

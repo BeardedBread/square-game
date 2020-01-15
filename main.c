@@ -40,7 +40,7 @@ int main()
     camera.zoom = 1.0f;
 
     struct player_obj player = {
-        .kinematic = init_kinematic_obj(40, 40),
+        .kinematic = init_kinematic_obj(PLAYER_SIZE, PLAYER_SIZE),
         .state = IDLE
     };
 

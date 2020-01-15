@@ -12,10 +12,11 @@ struct kinematic_obj
 {
     Rectangle rect;
     Vector2 velocity;
-    double scale;
-    double set_scale;
+    Vector2 pos;
     int ori_width;
     int ori_height;
+    double dim_reduction[4];
+    double set_dim_reduction[4];
 };
 
 struct kinematic_obj_node
@@ -46,6 +47,8 @@ struct player_obj
     enum PLAYER_STATE state;
 };
 
+extern unsigned int PLAYER_SIZE;
+
 struct squishy_square
 {
     struct kinematic_obj *parent;
@@ -68,6 +71,7 @@ struct kinematic_obj init_kinematic_obj(int width, int height);
 void move(struct kinematic_obj *obj, Vector2 acceleration);
 void set_position(struct kinematic_obj *obj, int x, int y);
 bool place_meeting(struct kinematic_obj *obj, Vector2 dir);
+void scale_rect(struct kinematic_obj *obj);
 
 // Math functions, math.c
 long mag(Vector2 vec);
