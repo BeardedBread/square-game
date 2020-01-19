@@ -28,10 +28,11 @@ void move(struct kinematic_obj *obj, Vector2 acceleration){
     Rectangle collide_rect;
     struct kinematic_obj_node *current;
     //Simplistic Collision Handling for AABB, Could add coeff of restitution?
+    // TODO: Dont reset velocity if clipping vector is not the same dir as the movement dir
     obj->velocity.x += acceleration.x * delta;
     obj->pos.x += obj->velocity.x * delta;
     obj->rect.x = obj->pos.x + obj->dim_reduction[0];
-    obj->rect.width = obj->ori_width - obj->dim_reduction[0]  - obj->dim_reduction[1];
+    obj->rect.width = obj->ori_width - obj->dim_reduction[0]  - obj->dim_reduction[2];
 
     current = kinematic_HEAD;
     while(current != NULL){
@@ -65,8 +66,8 @@ void move(struct kinematic_obj *obj, Vector2 acceleration){
     // Repeat for y
     obj->velocity.y += acceleration.y * delta;
     obj->pos.y += obj->velocity.y * delta;
-    obj->rect.y = obj->pos.y + obj->dim_reduction[2];
-    obj->rect.height = obj->ori_height - obj->dim_reduction[2]  - obj->dim_reduction[3];
+    obj->rect.y = obj->pos.y + obj->dim_reduction[1];
+    obj->rect.height = obj->ori_height - obj->dim_reduction[1]  - obj->dim_reduction[3];
 
     current = kinematic_HEAD;
     while(current != NULL){

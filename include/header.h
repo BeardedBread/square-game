@@ -45,6 +45,7 @@ struct player_obj
 {
     struct kinematic_obj kinematic;
     enum PLAYER_STATE state;
+    struct squishy_square *image;
 };
 
 extern unsigned int PLAYER_SIZE;
@@ -59,6 +60,8 @@ struct squishy_square
     double bottom_offset;
     double left_offset;
     double right_offset;
+
+    double target_offsets[4];
 
     Vector2 top_vertices[BEZIER_POINTS+1];
     Vector2 bottom_vertices[BEZIER_POINTS+1];
@@ -90,6 +93,7 @@ void free_list(void);
 struct squishy_square init_squishy_square(struct kinematic_obj *parent, Color color);
 void update_squishy(struct squishy_square *square);
 void draw_squishy(struct squishy_square *square);
+void set_squish_target_offset(struct squishy_square *square, unsigned int dir, int val);
 
 //Player stuff, player.c
 struct player_obj init_player_obj();

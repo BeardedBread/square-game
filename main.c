@@ -52,6 +52,7 @@ int main()
     set_position(&tile2, 350, 330);
     set_position(&tile3, 250, 270);
     struct squishy_square sqr = init_squishy_square(&player.kinematic, RED);
+    player.image = &sqr;
 
     add_node(&tile);
     add_node(&tile2);

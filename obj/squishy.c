@@ -46,28 +46,36 @@ void update_squishy(struct squishy_square *square){
 
 }
 
-void calc_offsets(struct squishy_square *square){
+void set_squish_target_offset(struct squishy_square *square, unsigned int dir, int val){
     /* 0 - left, 1 - top, 2 - right, 3 - bottom
      */
+    square->target_offsets[0] = 0;
+    square->target_offsets[1] = 0;
+    square->target_offsets[2] = 0;
+    square->target_offsets[3] = 0;
+    switch(dir){
+        case 0:
+            square->target_offsets[0] += val;
+            square->target_offsets[2] += -val * 0.5;
+        break;
+        case 1:
+            square->target_offsets[1] += val;
+            square->target_offsets[3] += -val * 0.5;
+        break;
+        case 2:
+            square->target_offsets[2] += val;
+            square->target_offsets[0] += -val * 0.5;
+        break;
+        case 3:
+            square->target_offsets[3] += val;
+            square->target_offsets[1] += -val * 0.5;
+        break;
+    }
+}
+
+void calc_offsets(struct squishy_square *square){
     // TODO: Normalise the offsets
-    double target_offsets[4] = {0,0,0,0};
     
-    if (IsKeyDown(KEY_A)){
-        target_offsets[0] += OFFSET_VALUE;
-        target_offsets[2] += -OFFSET_VALUE * 0.5;
-    }
-    if (IsKeyDown(KEY_D)){
-        target_offsets[2] += OFFSET_VALUE;
-        target_offsets[0] += -OFFSET_VALUE * 0.5;
-    }
-    if (IsKeyDown(KEY_W)){
-        target_offsets[1] += OFFSET_VALUE;
-        target_offsets[3] += -OFFSET_VALUE * 0.5;
-    }
-    if (IsKeyDown(KEY_S)){
-        target_offsets[3] += OFFSET_VALUE;
-        target_offsets[1] += -OFFSET_VALUE * 0.5;
-    }
     bool contacts[4];
     int n_contacts = 0;
     contacts[0] = place_meeting(square->parent, (Vector2){-1, 0});
@@ -77,7 +85,7 @@ void calc_offsets(struct squishy_square *square){
 
     // Redistribute the offset on contact
     for (int i=0; i < 4; ++i){
-        if (contacts[i] == true && target_offsets[i] < 0){
+        if (contacts[i] == true && square->target_offsets[i] < 0){
             unsigned int n = 0;
             unsigned int j;
             unsigned int ind;
@@ -90,16 +98,16 @@ void calc_offsets(struct squishy_square *square){
                 for (j=0; j < 3; ++j){
                     ind = (i+1+j) % 4;
                     if (contacts[ind] == false)
-                        target_offsets[ind] += target_offsets[i] / n;
+                        square->target_offsets[ind] += square->target_offsets[i] / n;
                 }
             }
-            target_offsets[i] = 0;
+            square->target_offsets[i] = 0;
         }
     }
-    approach(&square->left_offset, target_offsets[0], INTERP_FACTOR);
-    approach(&square->top_offset, target_offsets[1], INTERP_FACTOR);
-    approach(&square->right_offset, target_offsets[2], INTERP_FACTOR);
-    approach(&square->bottom_offset, target_offsets[3], INTERP_FACTOR);
+    approach(&square->left_offset, square->target_offsets[0], INTERP_FACTOR);
+    approach(&square->top_offset, square->target_offsets[1], INTERP_FACTOR);
+    approach(&square->right_offset, square->target_offsets[2], INTERP_FACTOR);
+    approach(&square->bottom_offset, square->target_offsets[3], INTERP_FACTOR);
 }
 
 void draw_squishy(struct squishy_square *square){

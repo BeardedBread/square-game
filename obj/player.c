@@ -20,7 +20,7 @@ const unsigned int run_start_frames = 10;
 const unsigned int jump_squat_frames = 4;
 const unsigned int land_lag_frames = 6;
 
-extern unsigned int PLAYER_SIZE = 40;
+unsigned int PLAYER_SIZE = 40;
 
 // The player FSM
 void player_input_check(struct player_obj *player){
@@ -80,7 +80,9 @@ void player_input_check(struct player_obj *player){
         case TURN_AROUND:
 
         break;
-        case JUMP_SQUAT:          
+        case JUMP_SQUAT:
+            player->kinematic.set_dim_reduction[1] = 10;
+            set_squish_target_offset(player->image, 1, 20);
             if(frame_counter<jump_squat_frames){
                     ++frame_counter;
                     if (short_hop != true && !IsKeyDown(JUMP)){
@@ -90,28 +92,39 @@ void player_input_check(struct player_obj *player){
             else{
                 frame_counter = 0;
                 if (short_hop == true)
-                    player->kinematic.velocity.y = -JUMP_SPD/2;
+                    player->kinematic.velocity.y = -JUMP_SPD * 0.6;
                 else
                     player->kinematic.velocity.y = -JUMP_SPD;
                 player->state = JUMPING;
                 on_ground = false;
                 short_hop = false;
+                player->kinematic.set_dim_reduction[1] = 0;
+                player->kinematic.set_dim_reduction[3] = 10;
             }
         break;
         case JUMPING:
+            set_squish_target_offset(player->image, 3, 15);
             accel.x = AIR_ACCEL*(IsKeyDown(KEY_RIGHT)-IsKeyDown(KEY_LEFT));
-            if (player->kinematic.velocity.y >= 0)
+            if (player->kinematic.velocity.y >= 0){
                 player->state = FALLING;
+                player->kinematic.set_dim_reduction[3] = 0;
+            }
         break;
         case FALLING:
+            //player->kinematic.set_dim_reduction[3] = -player->kinematic.velocity.y/20;
+            set_squish_target_offset(player->image, 1, 15);
             accel.x = AIR_ACCEL*(IsKeyDown(KEY_RIGHT)-IsKeyDown(KEY_LEFT));
             if (place_meeting(&player->kinematic, (Vector2){0,1})){
                 player->state = LANDING;
+                player->kinematic.dim_reduction[3] = 0;
+                player->kinematic.set_dim_reduction[3] = 0;
+                player->kinematic.dim_reduction[1] = 40;
                 on_ground = true;
                 state_buffer = IDLE;
             }
         break;
         case LANDING:
+            set_squish_target_offset(player->image, 1, 0);
             if(frame_counter<land_lag_frames){
                     ++frame_counter;
                 if (IsKeyDown(JUMP))
@@ -141,28 +154,11 @@ void player_input_check(struct player_obj *player){
         break;
     }
 
-    // TODO: Add a key to resize the rect and see what happens?
-    Vector2 offset = (Vector2){0,0};
-    player->kinematic.set_dim_reduction[0] = 0;
-    if (IsKeyDown(KEY_J))
-        player->kinematic.set_dim_reduction[0] = 10;
-    
-    player->kinematic.set_dim_reduction[1] = 0;
-    if (IsKeyDown(KEY_L))
-        player->kinematic.set_dim_reduction[1] = 10;
-
-    player->kinematic.set_dim_reduction[2] = 0;
-    if (IsKeyDown(KEY_I))
-        player->kinematic.set_dim_reduction[2] = 10;
-
-    player->kinematic.set_dim_reduction[3] = 0;
-    if (IsKeyDown(KEY_K))
-        player->kinematic.set_dim_reduction[3] = 10;
-
-    approach(&player->kinematic.dim_reduction[0], player->kinematic.set_dim_reduction[0], 0.5);
-    approach(&player->kinematic.dim_reduction[1], player->kinematic.set_dim_reduction[1], 0.5);
-    approach(&player->kinematic.dim_reduction[2], player->kinematic.set_dim_reduction[2], 0.5);
-    approach(&player->kinematic.dim_reduction[3], player->kinematic.set_dim_reduction[3], 0.5);
+    // Set the hitbox reductions
+    approach(&player->kinematic.dim_reduction[0], player->kinematic.set_dim_reduction[0], 0.2);
+    approach(&player->kinematic.dim_reduction[1], player->kinematic.set_dim_reduction[1], 0.2);
+    approach(&player->kinematic.dim_reduction[2], player->kinematic.set_dim_reduction[2], 0.2);
+    approach(&player->kinematic.dim_reduction[3], player->kinematic.set_dim_reduction[3], 0.2);
 
     //scale_rect(&player->kinematic);
 
