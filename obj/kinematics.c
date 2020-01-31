@@ -1,4 +1,5 @@
 #include "header.h"
+#include <math.h>
 extern struct kinematic_obj_node *kinematic_HEAD;
 
 struct kinematic_obj init_kinematic_obj(int width, int height){
@@ -27,69 +28,56 @@ void move(struct kinematic_obj *obj, Vector2 acceleration){
 
     Rectangle collide_rect;
     struct kinematic_obj_node *current;
-    // Simplistic Collision Handling for AABB, Could add coeff of restitution?
-    // TODO: Implement the slightly better method of collision from:
-    // https://hopefultoad.blogspot.com/2017/09/2d-aabb-collision-detection-and-response.html
+    // Self implement AABB SAT from Metanet
 
-    // Also think about what happens if the square is completely inside the shape
-    // Then extend to multiple object
-    // Might need to check distance
+    // TODO: extend to multiple object collision, Might need to check distance
+
+    // Move the object and apply hitbox reduction
     obj->velocity.x += acceleration.x * delta;
     obj->pos.x += obj->velocity.x * delta;
     obj->rect.x = obj->pos.x + obj->dim_reduction[0];
     obj->rect.width = obj->ori_width - obj->dim_reduction[0]  - obj->dim_reduction[2];
-    current = kinematic_HEAD;
-    while(current != NULL){
-        if(current->obj != obj){
-            if (CheckCollisionRecs(obj->rect, current->obj->rect)){
-                collide_rect = GetCollisionRec(obj->rect, current->obj->rect);                
-                if(collide_rect.width < collide_rect.height){
-                    if (!place_meeting(obj, (Vector2){-collide_rect.width,0})){
-                        obj->rect.x -= collide_rect.width;
-                        obj->pos.x -= collide_rect.width;
-                    }else{
-                        obj->rect.x += collide_rect.width;
-                        obj->pos.x += collide_rect.width;
-                    }
-                    obj->velocity.x = 0;
-                }else{
-                    if (!place_meeting(obj, (Vector2){0,-collide_rect.height})){
-                        obj->rect.y -= collide_rect.height;
-                        obj->pos.y -= collide_rect.height;
-                    }else{
-                        obj->rect.y += collide_rect.height;
-                        obj->pos.y += collide_rect.height;
-                    }
-                    obj->velocity.y = 0;
-                }
-            }
-        }
-        current = current->next;
-    }
-
-    // Repeat for y
     obj->velocity.y += acceleration.y * delta;
     obj->pos.y += obj->velocity.y * delta;
     obj->rect.y = obj->pos.y + obj->dim_reduction[1];
     obj->rect.height = obj->ori_height - obj->dim_reduction[1]  - obj->dim_reduction[3];
-
+    
     current = kinematic_HEAD;
     while(current != NULL){
         if(current->obj != obj){
-            if (CheckCollisionRecs(obj->rect, current->obj->rect)){
-                collide_rect = GetCollisionRec(obj->rect, current->obj->rect);                
-                if(collide_rect.width < collide_rect.height){
-                    obj->rect.x -= sign(obj->velocity.x) * collide_rect.width;
-                    obj->pos.x -= sign(obj->velocity.x) * collide_rect.width;
-                    obj->velocity.x = 0;
-                }else{
-                    obj->rect.y -= sign(obj->velocity.y) * collide_rect.height;
-                    obj->pos.y -= sign(obj->velocity.y) * collide_rect.height;
-                    obj->velocity.y = 0;
+            // SAT: If any projected axis is non overlapping, exit
+            if (obj->rect.x + obj->rect.width < current->obj->rect.x) goto iter;
+            if (current->obj->rect.x + current->obj->rect.width < obj->rect.x) goto iter;
+            if (obj->rect.y + obj->rect.height < current->obj->rect.y) goto iter;
+            if (current->obj->rect.y + current->obj->rect.height < obj->rect.y) goto iter;
+            
+            // Move in the direction of the shorter movement
+            double hmove, vmove;
+            hmove = (current->obj->rect.width + obj->rect.width) / 2 - fabs(current->obj->rect.x - obj->rect.x + (current->obj->rect.width - obj->rect.width) / 2);
+            vmove = (current->obj->rect.height + obj->rect.height) / 2 - fabs(current->obj->rect.y - obj->rect.y + (current->obj->rect.height - obj->rect.height) / 2);
+            if (hmove < vmove){
+                if (obj->rect.x + obj->rect.width / 2 < current->obj->rect.x + current->obj->rect.width / 2){
+                    obj->rect.x -= hmove;
+                    obj->pos.x -= hmove;
                 }
+                else{
+                    obj->rect.x += hmove;
+                    obj->pos.x += hmove;
+                }
+                obj->velocity.x = 0;
+            }else{
+                if (obj->rect.y + obj->rect.height / 2 < current->obj->rect.y + current->obj->rect.height / 2){
+                    obj->rect.y -= vmove;
+                    obj->pos.y -= vmove;
+                }
+                else{
+                    obj->rect.y += vmove;
+                    obj->pos.y += vmove;
+                }
+                obj->velocity.y = 0;
             }
         }
-        current = current->next;
+iter:        current = current->next;
     }
 };
 
