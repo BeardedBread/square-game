@@ -67,13 +67,47 @@ void player_input_check(struct player_obj *player){
                     accel.x = PLAYER_ACCEL*(IsKeyDown(KEY_RIGHT)-IsKeyDown(KEY_LEFT));
                 }
             }
+            set_squish_target_offset(player->image, 0, 0);
+            set_squish_target_offset(player->image, 2, 0);
+            if (player->kinematic.velocity.x == 0){
+                if (run_dir == 1){
+                    player->kinematic.dim_reduction[0] = 20;
+                    set_squish_target_offset(player->image, 0, 15);
+                }else{
+                    player->kinematic.dim_reduction[2] = 20;
+                    set_squish_target_offset(player->image, 2, 15);
+                }
+            }
         break;
         case RUN_END:
             if(player->kinematic.velocity.x < 10 && player->kinematic.velocity.x > -10){
+                set_squish_target_offset(player->image, 2, 0);
+                player->kinematic.dim_reduction[2] = 0;
+                set_squish_target_offset(player->image, 0, 0);
+                player->kinematic.dim_reduction[0] = 0;
                 if(IsKeyDown(LEFT) || IsKeyDown(RIGHT)){
                     player->state = RUNNING;
                 }else{
                     player->state = IDLE;
+                }
+            }else{
+                //Skidding
+                if (player->kinematic.velocity.x > 0){
+                    if (!IsKeyDown(RIGHT)){
+                        set_squish_target_offset(player->image, 0, 15);
+                        player->kinematic.dim_reduction[0] = 10;
+                    }else{
+                        set_squish_target_offset(player->image, 0, 0);
+                        player->kinematic.dim_reduction[0] = 0;
+                    }
+                }else{
+                    if (!IsKeyDown(LEFT)){
+                        set_squish_target_offset(player->image, 2, 15);
+                        player->kinematic.dim_reduction[2] = 10;
+                    }else{
+                        set_squish_target_offset(player->image, 2, 0);
+                        player->kinematic.dim_reduction[2] = 0;
+                    }
                 }
             }
         break;
@@ -183,30 +217,5 @@ void player_input_check(struct player_obj *player){
 
     move(&player->kinematic, accel);
 
-    //Skidding
-    if (on_ground == true){
-        if (player->kinematic.velocity.x > 3){
-            if (!IsKeyDown(RIGHT)){
-                set_squish_target_offset(player->image, 0, 15);
-                player->kinematic.dim_reduction[0] = 10;
-            }else{
-                set_squish_target_offset(player->image, 0, 0);
-                player->kinematic.dim_reduction[0] = 0;
-            }
-        }else if (player->kinematic.velocity.x < -3){
-            if (!IsKeyDown(LEFT)){
-                set_squish_target_offset(player->image, 2, 15);
-                player->kinematic.dim_reduction[2] = 10;
-            }else{
-                set_squish_target_offset(player->image, 2, 0);
-                player->kinematic.dim_reduction[2] = 0;
-            }
-        }else{
-                player->kinematic.velocity.x = 0;
-                set_squish_target_offset(player->image, 2, 0);
-                player->kinematic.dim_reduction[2] = 0;
-                set_squish_target_offset(player->image, 0, 0);
-                player->kinematic.dim_reduction[0] = 0;
-        }
-    }
+    
 }

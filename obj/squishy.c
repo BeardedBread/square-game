@@ -1,9 +1,10 @@
 #include "header.h"
 #include <rlgl.h>
+#include <math.h>
 
 #define INTERP_FACTOR 0.2
 #define OFFSET_VALUE 20
-
+#define SHEAR_NORMALISE 100
 float shear_mat[16] =  {1.0, 0.0, 0, 0,
                         0.1, 1.0, 0, 0,
                         0, 0, 1.0, 0,
@@ -123,6 +124,7 @@ void calc_offsets(struct squishy_square *square){
 void draw_squishy(struct squishy_square *square){
     rlPushMatrix();
         // TODO: Need a correction term to put the square in the box????
+        shear_mat[4] = -square->parent->velocity.x / 600;
         rlMultMatrixf(shear_mat);
         translate_mat[12] = square->center.x;
         translate_mat[13] = square->center.y;
