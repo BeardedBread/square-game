@@ -49,8 +49,8 @@ int main()
     struct kinematic_obj tile3 = init_kinematic_obj(100, 40);
     set_position(&player.kinematic, 400, 100);
     set_position(&tile, -50, 380);
-    set_position(&tile2, 350, 330);
-    set_position(&tile3, 250, 270);
+    set_position(&tile2, 100, 280);
+    set_position(&tile3, 500, 280);
     struct squishy_square sqr = init_squishy_square(&player.kinematic, RED);
     player.image = &sqr;
 

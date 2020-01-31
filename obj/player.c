@@ -20,7 +20,7 @@ const unsigned int run_start_frames = 10;
 const unsigned int jump_squat_frames = 4;
 const unsigned int land_lag_frames = 6;
 
-unsigned int PLAYER_SIZE = 40;
+unsigned int PLAYER_SIZE = 30;
 
 // The player FSM
 void player_input_check(struct player_obj *player){
@@ -71,10 +71,10 @@ void player_input_check(struct player_obj *player){
             set_squish_target_offset(player->image, 2, 0);
             if (player->kinematic.velocity.x == 0){
                 if (run_dir == 1){
-                    player->kinematic.dim_reduction[0] = 20;
+                    player->kinematic.dim_reduction[0] = PLAYER_SIZE / 2;
                     set_squish_target_offset(player->image, 0, 15);
                 }else{
-                    player->kinematic.dim_reduction[2] = 20;
+                    player->kinematic.dim_reduction[2] = PLAYER_SIZE / 2;
                     set_squish_target_offset(player->image, 2, 15);
                 }
             }
@@ -152,7 +152,7 @@ void player_input_check(struct player_obj *player){
                 player->state = LANDING;
                 player->kinematic.dim_reduction[3] = 0;
                 player->kinematic.set_dim_reduction[3] = 0;
-                player->kinematic.dim_reduction[1] = 40;
+                player->kinematic.dim_reduction[1] = PLAYER_SIZE;
                 on_ground = true;
                 state_buffer = IDLE;
             }
@@ -198,7 +198,8 @@ void player_input_check(struct player_obj *player){
         --jumps;
     }
 
-    if (on_ground == true && !place_meeting(&player->kinematic, (Vector2){0,1})){
+    // Add mercy jump here
+    if (on_ground == true && !place_meeting(&player->kinematic, (Vector2){0,1})  && player->state != JUMP_SQUAT){
         jumps = 0;
         on_ground = false;
         allow_friction = true;
