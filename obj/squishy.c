@@ -4,6 +4,16 @@
 #define INTERP_FACTOR 0.2
 #define OFFSET_VALUE 20
 
+float shear_mat[16] =  {1.0, 0.0, 0, 0,
+                        0.1, 1.0, 0, 0,
+                        0, 0, 1.0, 0,
+                        0, 0, 0, 1.0};
+
+float translate_mat[16] =  {1,0,0,0,
+                            0,1,0,0,
+                            0,0,1,0,
+                            0,0,0,1};
+
 void three_point_beizer(Vector2 start, Vector2 mid, Vector2 end, Vector2* arr);
 void calc_offsets(struct squishy_square *square);
 
@@ -112,10 +122,12 @@ void calc_offsets(struct squishy_square *square){
 
 void draw_squishy(struct squishy_square *square){
     rlPushMatrix();
-        rlTranslatef(square->center.x, square->center.y, 0.0f);
-        //rlTranslatef(0.0f, square->parent->rect.height/2, 0.0f);
-        //rlScalef(0.5, 0.5, 1.0);
-        //rlTranslatef(0.0f, -square->parent->rect.height/2, 0.0f);
+        // TODO: Need a correction term to put the square in the box????
+        rlMultMatrixf(shear_mat);
+        translate_mat[12] = square->center.x;
+        translate_mat[13] = square->center.y;
+        rlMultMatrixf(translate_mat);
+
         int i;
         for(i=0;i<BEZIER_POINTS;++i){
             DrawTriangle(square->top_vertices[i], (Vector2){0,0}, square->top_vertices[i+1], square->color);

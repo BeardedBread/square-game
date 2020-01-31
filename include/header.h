@@ -75,6 +75,7 @@ void move(struct kinematic_obj *obj, Vector2 acceleration);
 void set_position(struct kinematic_obj *obj, int x, int y);
 bool place_meeting(struct kinematic_obj *obj, Vector2 dir);
 void scale_rect(struct kinematic_obj *obj);
+void adjust_hitbox(struct kinematic_obj *obj);
 
 // Math functions, math.c
 long mag(Vector2 vec);

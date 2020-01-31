@@ -127,8 +127,8 @@ void player_input_check(struct player_obj *player){
             set_squish_target_offset(player->image, 1, 0);
             if(frame_counter<land_lag_frames){
                     ++frame_counter;
-                if (IsKeyDown(JUMP))
-                    state_buffer = JUMP_SQUAT;
+                //if (IsKeyDown(JUMP))
+                //    state_buffer = JUMP_SQUAT;
             }                              
             else{
                 jumps = 1;
@@ -155,12 +155,7 @@ void player_input_check(struct player_obj *player){
     }
 
     // Set the hitbox reductions
-    approach(&player->kinematic.dim_reduction[0], player->kinematic.set_dim_reduction[0], 0.2);
-    approach(&player->kinematic.dim_reduction[1], player->kinematic.set_dim_reduction[1], 0.2);
-    approach(&player->kinematic.dim_reduction[2], player->kinematic.set_dim_reduction[2], 0.2);
-    approach(&player->kinematic.dim_reduction[3], player->kinematic.set_dim_reduction[3], 0.2);
-
-    //scale_rect(&player->kinematic);
+    adjust_hitbox(&player->kinematic);
 
     if (IsKeyPressed(JUMP) && jumps > 0){
         player->state = JUMP_SQUAT;
@@ -187,4 +182,26 @@ void player_input_check(struct player_obj *player){
     }
 
     move(&player->kinematic, accel);
+
+    //Skidding
+    if (on_ground == true){
+        if (IsKeyDown(LEFT)){
+            if (player->kinematic.velocity.x > 0){
+                set_squish_target_offset(player->image, 0, 15);
+                player->kinematic.dim_reduction[0] = 10;
+            }else{
+                set_squish_target_offset(player->image, 0, 0);
+                player->kinematic.dim_reduction[0] = 0;
+            }
+        }
+        else if(IsKeyDown(RIGHT)){
+            if (player->kinematic.velocity.x < 0){
+                set_squish_target_offset(player->image, 2, 15);
+                player->kinematic.dim_reduction[2] = 10;
+            }else{
+                set_squish_target_offset(player->image, 2, 0);
+                player->kinematic.dim_reduction[2] = 0;
+            }
+        }
+    }
 }

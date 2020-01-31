@@ -27,13 +27,17 @@ void move(struct kinematic_obj *obj, Vector2 acceleration){
 
     Rectangle collide_rect;
     struct kinematic_obj_node *current;
-    //Simplistic Collision Handling for AABB, Could add coeff of restitution?
-    // TODO: Dont reset velocity if clipping vector is not the same dir as the movement dir
+    // Simplistic Collision Handling for AABB, Could add coeff of restitution?
+    // TODO: Implement the slightly better method of collision from:
+    // https://hopefultoad.blogspot.com/2017/09/2d-aabb-collision-detection-and-response.html
+
+    // Also think about what happens if the square is completely inside the shape
+    // Then extend to multiple object
+    // Might need to check distance
     obj->velocity.x += acceleration.x * delta;
     obj->pos.x += obj->velocity.x * delta;
     obj->rect.x = obj->pos.x + obj->dim_reduction[0];
     obj->rect.width = obj->ori_width - obj->dim_reduction[0]  - obj->dim_reduction[2];
-
     current = kinematic_HEAD;
     while(current != NULL){
         if(current->obj != obj){
@@ -111,4 +115,11 @@ Vector2 center(Rectangle rect){
         .x = rect.x + rect.width/2, 
         .y = rect.y + rect.height/2
     };
+}
+
+void adjust_hitbox(struct kinematic_obj *obj){
+    approach(&obj->dim_reduction[0], obj->set_dim_reduction[0], 0.2);
+    approach(&obj->dim_reduction[1], obj->set_dim_reduction[1], 0.2);
+    approach(&obj->dim_reduction[2], obj->set_dim_reduction[2], 0.2);
+    approach(&obj->dim_reduction[3], obj->set_dim_reduction[3], 0.2);
 }
