@@ -45,7 +45,7 @@ void move(struct kinematic_obj *obj, Vector2 acceleration){
     current = kinematic_HEAD;
     while(current != NULL){
         if(current->obj != obj){
-            // SAT: If any projected axis is non overlapping, exit
+            // SAT method - If any projected axis is non overlapping, exit
             if (obj->rect.x + obj->rect.width < current->obj->rect.x) goto iter;
             if (current->obj->rect.x + current->obj->rect.width < obj->rect.x) goto iter;
             if (obj->rect.y + obj->rect.height < current->obj->rect.y) goto iter;
