@@ -5,6 +5,8 @@
 #define BEZIER_POINTS 5
 #define LEFT KEY_LEFT
 #define RIGHT KEY_RIGHT
+#define DOWN KEY_DOWN
+#define UP KEY_UP
 #define JUMP KEY_SPACE
 #define DASH KEY_Z
 
@@ -78,7 +80,7 @@ void scale_rect(struct kinematic_obj *obj);
 void adjust_hitbox(struct kinematic_obj *obj);
 
 // Math functions, math.c
-long mag(Vector2 vec);
+double mag(Vector2 vec);
 int sign(float val);
 Vector2 dir(Vector2 vec);
 void approach(double *val, double target, float f);

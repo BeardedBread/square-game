@@ -1,7 +1,7 @@
 #include "header.h"
 #include <math.h>
 
-long mag(Vector2 vec){
+double mag(Vector2 vec){
     return sqrt(vec.x*vec.x + vec.y*vec.y);
 }
 

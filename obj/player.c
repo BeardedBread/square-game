@@ -19,6 +19,7 @@ static enum PLAYER_STATE state_buffer = IDLE;
 const unsigned int run_start_frames = 10;
 const unsigned int jump_squat_frames = 4;
 const unsigned int land_lag_frames = 6;
+const unsigned int dash_time_frames = 5;
 
 unsigned int PLAYER_SIZE = 30;
 
@@ -153,6 +154,7 @@ void player_input_check(struct player_obj *player){
                 player->kinematic.dim_reduction[3] = 0;
                 player->kinematic.set_dim_reduction[3] = 0;
                 player->kinematic.dim_reduction[1] = PLAYER_SIZE;
+                player->kinematic.set_dim_reduction[1] = 0;
                 on_ground = true;
                 state_buffer = IDLE;
             }
@@ -181,7 +183,10 @@ void player_input_check(struct player_obj *player){
 
         break;
         case DASHING:
-
+            ++frame_counter;
+            if (frame_counter > dash_time_frames){
+                player->state = JUMPING;
+            }
         break;
         case DASH_END:
 
@@ -196,6 +201,27 @@ void player_input_check(struct player_obj *player){
         allow_friction = true;
         short_hop = false;
         --jumps;
+    }
+    if  (IsKeyPressed(DASH)){
+        player->kinematic.velocity.x = 0;
+        if (IsKeyDown(RIGHT))
+            ++player->kinematic.velocity.x;
+        if (IsKeyDown(LEFT))
+            --player->kinematic.velocity.x;
+        
+        player->kinematic.velocity.y = 0;
+        if (IsKeyDown(DOWN))
+            ++player->kinematic.velocity.y;
+        if (IsKeyDown(UP))
+            --player->kinematic.velocity.y;
+
+        if (player->kinematic.velocity.x == 0 && player->kinematic.velocity.y == 0)
+            player->kinematic.velocity.x = sign(player->kinematic.velocity.x);
+        
+        double m = mag(player->kinematic.velocity);
+        player->kinematic.velocity.x *= 500/m;
+        player->kinematic.velocity.y *= 500/m;
+        player->state = DASHING;
     }
 
     // Add mercy jump here
