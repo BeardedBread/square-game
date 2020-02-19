@@ -6,6 +6,7 @@
 #define RUN_INIT_SPD 230
 #define JUMP_SPD 500
 #define GRAV 1200
+#define DASH_SPD 600
 
 static bool allow_move = true;
 static bool allow_friction = true;
@@ -19,7 +20,7 @@ static enum PLAYER_STATE state_buffer = IDLE;
 const unsigned int run_start_frames = 10;
 const unsigned int jump_squat_frames = 4;
 const unsigned int land_lag_frames = 6;
-const unsigned int dash_time_frames = 5;
+const unsigned int dash_time_frames = 3;
 
 unsigned int PLAYER_SIZE = 30;
 
@@ -186,6 +187,7 @@ void player_input_check(struct player_obj *player){
             ++frame_counter;
             if (frame_counter > dash_time_frames){
                 player->state = JUMPING;
+                allow_friction = true;
             }
         break;
         case DASH_END:
@@ -203,24 +205,31 @@ void player_input_check(struct player_obj *player){
         --jumps;
     }
     if  (IsKeyPressed(DASH)){
-        player->kinematic.velocity.x = 0;
+        // Determine the direction of dashing
+        Vector2 dash_dir = (Vector2){0.0, 0.0};
         if (IsKeyDown(RIGHT))
-            ++player->kinematic.velocity.x;
+            ++dash_dir.x;
         if (IsKeyDown(LEFT))
-            --player->kinematic.velocity.x;
+            --dash_dir.x;
         
-        player->kinematic.velocity.y = 0;
+        //if (player->kinematic.velocity.y > 0)
         if (IsKeyDown(DOWN))
-            ++player->kinematic.velocity.y;
+            ++dash_dir.y;
         if (IsKeyDown(UP))
-            --player->kinematic.velocity.y;
+            --dash_dir.y;
 
-        if (player->kinematic.velocity.x == 0 && player->kinematic.velocity.y == 0)
-            player->kinematic.velocity.x = sign(player->kinematic.velocity.x);
+        // Default a direction
+        if (dash_dir.x == 0 && dash_dir.y == 0){
+            dash_dir.x = sign(player->kinematic.velocity.x);
+
+        }
         
-        double m = mag(player->kinematic.velocity);
-        player->kinematic.velocity.x *= 500/m;
-        player->kinematic.velocity.y *= 500/m;
+        // Apply the scalar value, normalised to the unit direction
+        double m = mag(dash_dir);
+        player->kinematic.velocity.x = dash_dir.x * DASH_SPD/m;
+        //if (player->kinematic.velocity.y == 0)
+        player->kinematic.velocity.y =  dash_dir.y * DASH_SPD/m;
+        allow_friction = false;
         player->state = DASHING;
     }
 
@@ -238,7 +247,7 @@ void player_input_check(struct player_obj *player){
         else
             accel.x -= player->kinematic.velocity.x * 1.0;
 
-    if (!place_meeting(&player->kinematic, (Vector2){0,1})){
+    if (player->state != DASHING && !place_meeting(&player->kinematic, (Vector2){0,1}) ){
         accel.y = GRAV;
     }
 

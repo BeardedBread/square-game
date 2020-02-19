@@ -81,7 +81,7 @@ void adjust_hitbox(struct kinematic_obj *obj);
 
 // Math functions, math.c
 double mag(Vector2 vec);
-int sign(float val);
+int sign(double val);
 Vector2 dir(Vector2 vec);
 void approach(double *val, double target, float f);
 

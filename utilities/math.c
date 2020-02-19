@@ -10,7 +10,7 @@ Vector2 dir(Vector2 vec){
     return (Vector2){.x = vec.x/vec_mag,.y = vec.y/vec_mag};
 }
 
-int sign(float val){
+int sign(double val){
     return (val > 0)?1:-1;
 }
 
