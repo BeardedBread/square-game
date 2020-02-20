@@ -80,8 +80,8 @@ int main()
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
-            draw_squishy(&sqr);
             draw_afterimages(&player);
+            draw_squishy(&sqr);
 
             BeginMode2D(camera);
                 current = kinematic_HEAD;

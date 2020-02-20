@@ -163,6 +163,7 @@ void player_input_check(struct player_obj *player){
             }
         break;
         case LANDING:
+            dash_count = 1;
             set_squish_target_offset(player->image, 1, 0);
             if(frame_counter<land_lag_frames){
                     ++frame_counter;
@@ -171,7 +172,6 @@ void player_input_check(struct player_obj *player){
             }                              
             else{
                 jumps = 1;
-                dash_count = 1;
                 frame_counter = 0;
                 if (state_buffer == JUMP_SQUAT){
                     player->state = state_buffer;
@@ -192,7 +192,13 @@ void player_input_check(struct player_obj *player){
             player->kinematic.velocity.y = dash_vec.y;
             ++frame_counter;
             if (frame_counter > dash_time_frames){
-                player->state = JUMPING;
+                dash_count = 1;
+                if (!place_meeting(&player->kinematic, (Vector2){0,1})){
+                    player->state = JUMPING;
+                }
+                else{
+                    player->state = RUNNING;
+                }
                 //allow_friction = true;
             }
         break;
@@ -258,6 +264,8 @@ void player_input_check(struct player_obj *player){
     //if (player->state != DASHING && !place_meeting(&player->kinematic, (Vector2){0,1}) ){
     if (!place_meeting(&player->kinematic, (Vector2){0,1}) ){
         accel.y = GRAV;
+        if(player->kinematic.velocity.y > 0)
+            player->state = FALLING;
     }
 
     move(&player->kinematic, accel);
