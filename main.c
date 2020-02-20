@@ -41,7 +41,9 @@ int main()
 
     struct player_obj player = {
         .kinematic = init_kinematic_obj(PLAYER_SIZE, PLAYER_SIZE),
-        .state = IDLE
+        .state = IDLE,
+        .after_img_head = NULL,
+        .after_img_tail = NULL
     };
 
     struct kinematic_obj tile = init_kinematic_obj(900, 100);
@@ -100,6 +102,7 @@ int main()
     // De-Initialization
     //--------------------------------------------------------------------------------------
     free_list();
+    free_afterimages(&player);
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 

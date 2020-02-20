@@ -10,6 +10,18 @@
 #define JUMP KEY_SPACE
 #define DASH KEY_Z
 
+struct afterImage
+{
+    Vector2 top_vertices[BEZIER_POINTS+1];
+    Vector2 bottom_vertices[BEZIER_POINTS+1];
+    Vector2 left_vertices[BEZIER_POINTS+1];
+    Vector2 right_vertices[BEZIER_POINTS+1];
+
+    float opacity;
+    struct afterImage *prev;  
+    struct afterImage *next;    
+};
+
 struct kinematic_obj
 {
     Rectangle rect;
@@ -48,6 +60,8 @@ struct player_obj
     struct kinematic_obj kinematic;
     enum PLAYER_STATE state;
     struct squishy_square *image;
+    struct afterImage *after_img_head;
+    struct afterImage *after_img_tail;
 };
 
 extern unsigned int PLAYER_SIZE;
@@ -71,6 +85,8 @@ struct squishy_square
     Vector2 right_vertices[BEZIER_POINTS+1];
 };
 
+
+
 // Object functions, kinematics.c
 struct kinematic_obj init_kinematic_obj(int width, int height);
 void move(struct kinematic_obj *obj, Vector2 acceleration);
@@ -91,6 +107,9 @@ void create_list(void);
 void add_node(struct kinematic_obj *obj);
 //struct kinematic_obj_node **get_list();
 void free_list(void);
+void create_afterimage(struct player_obj *player);
+void remove_last_afterimage(struct player_obj *player);
+void free_afterimages(struct player_obj *player);
 
 // Squishy Square functions, squishy.c
 struct squishy_square init_squishy_square(struct kinematic_obj *parent, Color color);

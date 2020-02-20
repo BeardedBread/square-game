@@ -16,6 +16,7 @@ static unsigned int jumps = 1;
 static unsigned int frame_counter = 0;
 static int run_dir = 1;
 static enum PLAYER_STATE state_buffer = IDLE;
+static unsigned int dash_count = 1;
 
 const unsigned int run_start_frames = 10;
 const unsigned int jump_squat_frames = 4;
@@ -169,6 +170,7 @@ void player_input_check(struct player_obj *player){
             }                              
             else{
                 jumps = 1;
+                dash_count = 1;
                 frame_counter = 0;
                 if (state_buffer == JUMP_SQUAT){
                     player->state = state_buffer;
@@ -204,7 +206,7 @@ void player_input_check(struct player_obj *player){
         short_hop = false;
         --jumps;
     }
-    if  (IsKeyPressed(DASH)){
+    if  (IsKeyPressed(DASH) && dash_count > 0){
         // Determine the direction of dashing
         Vector2 dash_dir = (Vector2){0.0, 0.0};
         if (IsKeyDown(RIGHT))
@@ -230,6 +232,7 @@ void player_input_check(struct player_obj *player){
         //if (player->kinematic.velocity.y == 0)
         player->kinematic.velocity.y =  dash_dir.y * DASH_SPD/m;
         allow_friction = false;
+        --dash_count;
         player->state = DASHING;
     }
 
@@ -252,6 +255,4 @@ void player_input_check(struct player_obj *player){
     }
 
     move(&player->kinematic, accel);
-
-    
 }
