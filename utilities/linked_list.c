@@ -44,6 +44,8 @@ void create_afterimage(struct player_obj *player){
             img->left_vertices[i] = player->image->left_vertices[i];
             img->right_vertices[i] = player->image->right_vertices[i];
         }
+        img->pos = (Vector2){player->image->center.x, player->image->center.y};
+        img->velocity = (Vector2){player->kinematic.velocity.x, player->kinematic.velocity.y};
         img->opacity = 1.0;
         img->prev = NULL;
         if (player->after_img_head == NULL){
@@ -66,11 +68,13 @@ void remove_last_afterimage(struct player_obj *player){
             player->after_img_tail = player->after_img_tail->prev;
             last->prev = NULL;
             free(last);
-            player->after_img_tail->next = NULL;
         }
         // This happens if the last tail is the head
-        if (player->after_img_tail == NULL)
-            player->after_img_head == NULL;
+        if (player->after_img_tail == NULL){
+            player->after_img_head = NULL;
+        }else{
+            player->after_img_tail->next = NULL;
+        }
     }
 }
 

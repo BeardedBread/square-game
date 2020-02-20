@@ -12,6 +12,8 @@
 
 struct afterImage
 {
+    Vector2 velocity;
+    Vector2 pos;
     Vector2 top_vertices[BEZIER_POINTS+1];
     Vector2 bottom_vertices[BEZIER_POINTS+1];
     Vector2 left_vertices[BEZIER_POINTS+1];
@@ -116,6 +118,7 @@ struct squishy_square init_squishy_square(struct kinematic_obj *parent, Color co
 void update_squishy(struct squishy_square *square);
 void draw_squishy(struct squishy_square *square);
 void set_squish_target_offset(struct squishy_square *square, unsigned int dir, int val);
+void draw_afterimages(struct player_obj *player);
 
 //Player stuff, player.c
 struct player_obj init_player_obj();

@@ -140,6 +140,30 @@ void draw_squishy(struct squishy_square *square){
     rlPopMatrix();
 }
 
+void draw_afterimages(struct player_obj *player){
+    struct afterImage *current = player->after_img_head;
+    int i;
+    while (current != NULL){
+        rlPushMatrix();
+            shear_mat[4] = -current->velocity.x / 600;
+            rlMultMatrixf(shear_mat);
+            translate_mat[12] = current->pos.x;
+            translate_mat[13] = current->pos.y;
+            rlMultMatrixf(translate_mat);
+            Color c = (Color){ 0, 0, 0, 255 * current->opacity};
+            for(i=0;i<BEZIER_POINTS;++i){
+                DrawTriangle(current->top_vertices[i], (Vector2){0,0}, current->top_vertices[i+1], c);
+                DrawTriangle(current->bottom_vertices[i], (Vector2){0,0}, current->bottom_vertices[i+1], c);
+                DrawTriangle(current->left_vertices[i], (Vector2){0,0}, current->left_vertices[i+1], c);
+                DrawTriangle(current->right_vertices[i], (Vector2){0,0}, current->right_vertices[i+1], c);
+            }
+            current->opacity -= 0.1;
+        rlPopMatrix();
+        current = current->next;
+    }
+    
+}
+
 void three_point_beizer(Vector2 start, Vector2 mid, Vector2 end, Vector2* arr){
     /* Generate the vertices for a beizer curve
      */

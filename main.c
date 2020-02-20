@@ -81,6 +81,7 @@ int main()
 
             ClearBackground(RAYWHITE);
             draw_squishy(&sqr);
+            draw_afterimages(&player);
 
             BeginMode2D(camera);
                 current = kinematic_HEAD;
@@ -96,6 +97,7 @@ int main()
             EndMode2D();
 
         EndDrawing();
+        remove_last_afterimage(&player);
         //----------------------------------------------------------------------------------
     }
 
