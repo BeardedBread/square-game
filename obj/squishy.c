@@ -150,14 +150,14 @@ void draw_afterimages(struct player_obj *player){
             translate_mat[12] = current->pos.x;
             translate_mat[13] = current->pos.y;
             rlMultMatrixf(translate_mat);
-            Color c = (Color){ 0, 0, 0, 255 * current->opacity};
+            Color c = (Color){ 40, 0, 180, 255 * current->opacity};
             for(i=0;i<BEZIER_POINTS;++i){
                 DrawTriangle(current->top_vertices[i], (Vector2){0,0}, current->top_vertices[i+1], c);
                 DrawTriangle(current->bottom_vertices[i], (Vector2){0,0}, current->bottom_vertices[i+1], c);
                 DrawTriangle(current->left_vertices[i], (Vector2){0,0}, current->left_vertices[i+1], c);
                 DrawTriangle(current->right_vertices[i], (Vector2){0,0}, current->right_vertices[i+1], c);
             }
-            current->opacity -= 0.1;
+            current->opacity -= 0.2;
         rlPopMatrix();
         current = current->next;
     }

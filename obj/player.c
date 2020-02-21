@@ -6,7 +6,7 @@
 #define RUN_INIT_SPD 230
 #define JUMP_SPD 500
 #define GRAV 1200
-#define DASH_SPD 600
+#define DASH_SPD 650
 
 static bool allow_move = true;
 static bool allow_friction = true;
@@ -22,7 +22,10 @@ static Vector2 dash_vec = (Vector2){0.0, 0.0};
 const unsigned int run_start_frames = 10;
 const unsigned int jump_squat_frames = 4;
 const unsigned int land_lag_frames = 6;
-const unsigned int dash_time_frames = 5;
+const unsigned int dash_time_frames = 6;
+
+static unsigned int afterimage_fcounter = 10;
+const unsigned int afterimage_frames = 10;
 
 unsigned int PLAYER_SIZE = 30;
 
@@ -187,17 +190,18 @@ void player_input_check(struct player_obj *player){
 
         break;
         case DASHING:
-            create_afterimage(player);
             player->kinematic.velocity.x = dash_vec.x;
             player->kinematic.velocity.y = dash_vec.y;
             ++frame_counter;
             if (frame_counter > dash_time_frames){
-                dash_count = 1;
+                player->kinematic.velocity.x *= 0.6;
+                player->kinematic.velocity.y *= 0.6;
                 if (!place_meeting(&player->kinematic, (Vector2){0,1})){
                     player->state = JUMPING;
                 }
                 else{
-                    player->state = RUNNING;
+                    player->state = FALLING;
+                    dash_count = 1;
                 }
                 //allow_friction = true;
             }
@@ -209,6 +213,11 @@ void player_input_check(struct player_obj *player){
 
     // Set the hitbox reductions
     adjust_hitbox(&player->kinematic);
+    if (afterimage_fcounter < afterimage_frames){
+        if(afterimage_fcounter%2 == 0)
+            create_afterimage(player);
+        ++afterimage_fcounter;
+    }
 
     if (IsKeyPressed(JUMP) && jumps > 0){
         player->state = JUMP_SQUAT;
@@ -243,7 +252,7 @@ void player_input_check(struct player_obj *player){
         dash_vec.y =  dash_vec.y * DASH_SPD/m;
         //allow_friction = false;
         --dash_count;
-        frame_counter=0;
+        frame_counter=0;afterimage_fcounter=0;
         player->state = DASHING;
     }
 
@@ -252,7 +261,10 @@ void player_input_check(struct player_obj *player){
         jumps = 0;
         on_ground = false;
         allow_friction = true;
-        player->state = FALLING;
+        if (player->state != DASHING)
+            player->state = FALLING;
+        else
+            player->state = JUMPING;
     }
 
     if (allow_friction == true)
@@ -264,7 +276,7 @@ void player_input_check(struct player_obj *player){
     //if (player->state != DASHING && !place_meeting(&player->kinematic, (Vector2){0,1}) ){
     if (!place_meeting(&player->kinematic, (Vector2){0,1}) ){
         accel.y = GRAV;
-        if(player->kinematic.velocity.y > 0)
+        if(player->state != DASHING && player->kinematic.velocity.y > 0)
             player->state = FALLING;
     }
 
