@@ -40,29 +40,32 @@ void player_input_check(struct player_obj *player){
         case IDLE:
             if (IsKeyDown(LEFT) || IsKeyDown(RIGHT)){
                 player->state = RUN_START;
-                //allow_friction = false;
                 player->kinematic.velocity.x = (IsKeyDown(KEY_RIGHT)-IsKeyDown(KEY_LEFT)) * RUN_INIT_SPD;
             }
         break;
         case RUN_START:
-            run_dir = sign(player->kinematic.velocity.x);
-            // Run Opposite Direction
-            if ((IsKeyPressed(LEFT) && run_dir == 1) || (IsKeyPressed(RIGHT) && run_dir == -1)){
+            if (player->kinematic.velocity.x == 0){
                 frame_counter = 0;
-                player->kinematic.velocity.x = -run_dir * RUN_INIT_SPD;
-            }else{
-                // Complete the run startup
-                if(frame_counter<run_start_frames){
-                    ++frame_counter;
-                    if (IsKeyDown(LEFT) || IsKeyDown(RIGHT)){
-                        player->kinematic.velocity.x = run_dir * RUN_INIT_SPD;
-                    }
-                }else{
+                player->state = IDLE;
+            }else{run_dir = sign(player->kinematic.velocity.x);
+            // Run Opposite Direction
+                if ((IsKeyPressed(LEFT) && run_dir == 1) || (IsKeyPressed(RIGHT) && run_dir == -1)){
                     frame_counter = 0;
-                    allow_friction = true;
-                    player->state = RUNNING;
+                    player->kinematic.velocity.x = -run_dir * RUN_INIT_SPD;
+                }else{
+                    // Complete the run startup
+                    if(frame_counter<run_start_frames){
+                        ++frame_counter;
+                        if (IsKeyDown(LEFT) || IsKeyDown(RIGHT)){
+                            player->kinematic.velocity.x = run_dir * RUN_INIT_SPD;
+                        }
+                    }else{
+                        frame_counter = 0;
+                        player->state = RUNNING;
+                    }
                 }
             }
+            
         break;
         case RUNNING:
             run_dir = sign(player->kinematic.velocity.x);
@@ -78,13 +81,14 @@ void player_input_check(struct player_obj *player){
             set_squish_target_offset(player->image, 0, 0);
             set_squish_target_offset(player->image, 2, 0);
             if (player->kinematic.velocity.x == 0){
-                if (run_dir == 1){
+                if (place_meeting(&player->kinematic, (Vector2){1,0})){
                     player->kinematic.dim_reduction[0] = PLAYER_SIZE / 2;
-                    set_squish_target_offset(player->image, 0, 15);
-                }else{
+                    //set_squish_target_offset(player->image, 2, 15);
+                }else if (place_meeting(&player->kinematic, (Vector2){1,0})){
                     player->kinematic.dim_reduction[2] = PLAYER_SIZE / 2;
-                    set_squish_target_offset(player->image, 2, 15);
+                    //set_squish_target_offset(player->image, 2, 15);
                 }
+                player->state = IDLE;
             }
         break;
         case RUN_END:
@@ -138,7 +142,6 @@ void player_input_check(struct player_obj *player){
                 else
                     player->kinematic.velocity.y = -JUMP_SPD;
                 player->state = JUMPING;
-                on_ground = false;
                 short_hop = false;
             }
         break;
@@ -150,32 +153,34 @@ void player_input_check(struct player_obj *player){
         break;
         case FALLING:
             accel.x = AIR_ACCEL*(IsKeyDown(KEY_RIGHT)-IsKeyDown(KEY_LEFT));
-            if (place_meeting(&player->kinematic, (Vector2){0,1})){
+            if (on_ground){
+                frame_counter = 0;
                 player->state = LANDING;
-                player->kinematic.dim_reduction[3] = 0;
-                player->kinematic.set_dim_reduction[3] = 0;
-                player->kinematic.dim_reduction[1] = PLAYER_SIZE;
-                player->kinematic.set_dim_reduction[1] = 0;
-                set_squish_target_offset(player->image, 1, 0);
-                on_ground = true;
                 state_buffer = IDLE;
             }
         break;
         case LANDING:
             dash_count = 1;
+            if (frame_counter == 0){
+                player->kinematic.dim_reduction[3] = 0;
+                player->kinematic.set_dim_reduction[3] = 0;
+                player->kinematic.dim_reduction[1] = PLAYER_SIZE;
+                player->kinematic.set_dim_reduction[1] = 0;
+                set_squish_target_offset(player->image, 1, 0);
+            }
             if(frame_counter<land_lag_frames){
                     ++frame_counter;
-                if (IsKeyDown(JUMP))
-                    state_buffer = JUMP_SQUAT;
+                //if (IsKeyDown(JUMP))
+                //    state_buffer = JUMP_SQUAT;
             }                              
             else{
                 jumps = DEFAULT_JUMP_COUNT;
                 frame_counter = 0;
-                if (state_buffer == JUMP_SQUAT){
-                    player->state = state_buffer;
-                    --jumps;
-                }
-                else if (IsKeyDown(LEFT) || IsKeyDown(RIGHT))
+                //if (state_buffer == JUMP_SQUAT){
+                //    player->state = state_buffer;
+                //    --jumps;
+                //}
+                if (IsKeyDown(LEFT) || IsKeyDown(RIGHT))
                     player->state = RUNNING;
                 else
                     player->state = IDLE;
@@ -198,7 +203,6 @@ void player_input_check(struct player_obj *player){
                     player->state = FALLING;
                     dash_count = 1;
                 }
-                //allow_friction = true;
             }
         break;
         case DASH_END:
@@ -206,12 +210,45 @@ void player_input_check(struct player_obj *player){
         break;
     }
 
-    if (IsKeyPressed(JUMP) && jumps > 0){
-        player->state = JUMP_SQUAT;
-        allow_friction = true;
-        short_hop = false;
-        --jumps;
+    // Add mercy jump here
+    if (on_ground == true && !place_meeting(&player->kinematic, (Vector2){0,1})  && player->state != JUMP_SQUAT){
+        jumps = 0;
+        if (player->state != DASHING)
+            player->state = FALLING;
+        else
+            player->state = JUMPING;
     }
+    
+    on_ground = place_meeting(&player->kinematic, (Vector2){0,1});
+
+    //if (player->state != DASHING && !place_meeting(&player->kinematic, (Vector2){0,1}) ){
+    if (!on_ground ){
+        accel.y = GRAV;
+        if(player->state != DASHING && player->kinematic.velocity.y > 0)
+            player->state = FALLING;
+    }
+    //if (allow_friction == true)
+    if (on_ground == true)
+        accel.x -= player->kinematic.velocity.x * 7.0;
+    else
+        accel.x -= player->kinematic.velocity.x * 1.0;
+
+    if (IsKeyPressed(JUMP)){
+        if (on_ground == false){
+            if (place_meeting(&player->kinematic, (Vector2){-8,0})){
+                player->kinematic.velocity.y = -350;
+                player->kinematic.velocity.x = 400;
+                player->state = JUMPING;
+                afterimage_fcounter = 5;
+            }else if (place_meeting(&player->kinematic, (Vector2){8, 0})){
+                player->kinematic.velocity.y = -350;
+                player->kinematic.velocity.x = -400;
+                player->state = JUMPING;
+                afterimage_fcounter = 5;
+            }
+        }
+    }
+
     if  (IsKeyPressed(DASH) && dash_count > 0){
         // Determine the direction of dashing
         dash_vec.x = 0;
@@ -242,33 +279,16 @@ void player_input_check(struct player_obj *player){
         frame_counter=0;afterimage_fcounter=0;
         player->state = DASHING;
     }
-
-    // Add mercy jump here
-    if (on_ground == true && !place_meeting(&player->kinematic, (Vector2){0,1})  && player->state != JUMP_SQUAT){
-        jumps = 0;
-        on_ground = false;
+    move(&player->kinematic, accel);
+    /*if (IsKeyPressed(JUMP) && jumps > 0){
+        player->state = JUMP_SQUAT;
         allow_friction = true;
-        if (player->state != DASHING)
-            player->state = FALLING;
-        else
-            player->state = JUMPING;
-    }
-
-    if (allow_friction == true)
-        if (on_ground)
-            accel.x -= player->kinematic.velocity.x * 7.0;
-        else
-            accel.x -= player->kinematic.velocity.x * 1.0;
-
-    //if (player->state != DASHING && !place_meeting(&player->kinematic, (Vector2){0,1}) ){
-    if (!place_meeting(&player->kinematic, (Vector2){0,1}) ){
-        accel.y = GRAV;
-        if(player->state != DASHING && player->kinematic.velocity.y > 0)
-            player->state = FALLING;
-    }
+        short_hop = false;
+        --jumps;
+    }*/
+   
 
 
-    
     player->kinematic.set_dim_reduction[1] = 0;
     player->kinematic.set_dim_reduction[3] = 0;
     if (on_ground == false){
@@ -290,5 +310,4 @@ void player_input_check(struct player_obj *player){
 
     // Set the hitbox reductions
     adjust_hitbox(&player->kinematic);
-    move(&player->kinematic, accel);
 }

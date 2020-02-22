@@ -49,16 +49,28 @@ int main()
     struct kinematic_obj tile = init_kinematic_obj(900, 100);
     struct kinematic_obj tile2 = init_kinematic_obj(100, 40);
     struct kinematic_obj tile3 = init_kinematic_obj(100, 40);
+    struct kinematic_obj tile4 = init_kinematic_obj(40, 200);
+    struct kinematic_obj tile5 = init_kinematic_obj(40, 200);
+    struct kinematic_obj tile6 = init_kinematic_obj(50, 300);
+    struct kinematic_obj tile7 = init_kinematic_obj(50, 300);
     set_position(&player.kinematic, 400, 100);
     set_position(&tile, -50, 380);
     set_position(&tile2, 100, 280);
     set_position(&tile3, 500, 280);
+    set_position(&tile4, 250, 140);
+    set_position(&tile5, 350, 100);
+    set_position(&tile6, 0, 50);
+    set_position(&tile7, 700, 80);
     struct squishy_square sqr = init_squishy_square(&player.kinematic, RED);
     player.image = &sqr;
 
     add_node(&tile);
     add_node(&tile2);
     add_node(&tile3);
+    add_node(&tile4);
+    add_node(&tile5);
+    add_node(&tile6);
+    add_node(&tile7);
     add_node(&player.kinematic);
     
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
