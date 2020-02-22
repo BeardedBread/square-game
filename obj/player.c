@@ -6,7 +6,7 @@
 #define RUN_INIT_SPD 230
 #define JUMP_SPD 500
 #define GRAV 1200
-#define DASH_SPD 650
+#define DASH_SPD 500
 
 static bool allow_move = true;
 static bool allow_friction = true;
@@ -22,7 +22,7 @@ static Vector2 dash_vec = (Vector2){0.0, 0.0};
 const unsigned int run_start_frames = 10;
 const unsigned int jump_squat_frames = 4;
 const unsigned int land_lag_frames = 6;
-const unsigned int dash_time_frames = 6;
+const unsigned int dash_time_frames = 8;
 
 static unsigned int afterimage_fcounter = 10;
 const unsigned int afterimage_frames = 10;
@@ -139,21 +139,15 @@ void player_input_check(struct player_obj *player){
                 player->state = JUMPING;
                 on_ground = false;
                 short_hop = false;
-                player->kinematic.set_dim_reduction[1] = 0;
-                player->kinematic.set_dim_reduction[3] = 10;
             }
         break;
         case JUMPING:
-            set_squish_target_offset(player->image, 3, 15);
             accel.x = AIR_ACCEL*(IsKeyDown(KEY_RIGHT)-IsKeyDown(KEY_LEFT));
             if (player->kinematic.velocity.y >= 0){
                 player->state = FALLING;
-                player->kinematic.set_dim_reduction[3] = 0;
             }
         break;
         case FALLING:
-            //player->kinematic.set_dim_reduction[3] = -player->kinematic.velocity.y/20;
-            set_squish_target_offset(player->image, 1, 15);
             accel.x = AIR_ACCEL*(IsKeyDown(KEY_RIGHT)-IsKeyDown(KEY_LEFT));
             if (place_meeting(&player->kinematic, (Vector2){0,1})){
                 player->state = LANDING;
@@ -161,13 +155,13 @@ void player_input_check(struct player_obj *player){
                 player->kinematic.set_dim_reduction[3] = 0;
                 player->kinematic.dim_reduction[1] = PLAYER_SIZE;
                 player->kinematic.set_dim_reduction[1] = 0;
+                set_squish_target_offset(player->image, 1, 0);
                 on_ground = true;
                 state_buffer = IDLE;
             }
         break;
         case LANDING:
             dash_count = 1;
-            set_squish_target_offset(player->image, 1, 0);
             if(frame_counter<land_lag_frames){
                     ++frame_counter;
                 if (IsKeyDown(JUMP))
@@ -194,8 +188,8 @@ void player_input_check(struct player_obj *player){
             player->kinematic.velocity.y = dash_vec.y;
             ++frame_counter;
             if (frame_counter > dash_time_frames){
-                player->kinematic.velocity.x *= 0.6;
-                player->kinematic.velocity.y *= 0.6;
+                player->kinematic.velocity.x *= 0.7;
+                player->kinematic.velocity.y *= 0.7;
                 if (!place_meeting(&player->kinematic, (Vector2){0,1})){
                     player->state = JUMPING;
                 }
@@ -209,14 +203,6 @@ void player_input_check(struct player_obj *player){
         case DASH_END:
 
         break;
-    }
-
-    // Set the hitbox reductions
-    adjust_hitbox(&player->kinematic);
-    if (afterimage_fcounter < afterimage_frames){
-        if(afterimage_fcounter%2 == 0)
-            create_afterimage(player);
-        ++afterimage_fcounter;
     }
 
     if (IsKeyPressed(JUMP) && jumps > 0){
@@ -280,5 +266,28 @@ void player_input_check(struct player_obj *player){
             player->state = FALLING;
     }
 
+
+    
+    player->kinematic.set_dim_reduction[1] = 0;
+    player->kinematic.set_dim_reduction[3] = 0;
+    if (on_ground == false){
+        if (player->kinematic.velocity.y < 0)
+            player->kinematic.set_dim_reduction[3] = -player->kinematic.velocity.y / 40;
+        if (player->kinematic.velocity.y > 0)
+            player->kinematic.set_dim_reduction[1] = player->kinematic.velocity.y / 40;
+
+        set_squish_target_offset(player->image, 1, player->kinematic.velocity.y / 30);
+        set_squish_target_offset(player->image, 3, -player->kinematic.velocity.y / 30);
+    }
+
+    //Generate afterimages
+    if (afterimage_fcounter < afterimage_frames){
+        if(afterimage_fcounter%2 == 0)
+            create_afterimage(player);
+        ++afterimage_fcounter;
+    }
+
+    // Set the hitbox reductions
+    adjust_hitbox(&player->kinematic);
     move(&player->kinematic, accel);
 }

@@ -59,22 +59,28 @@ void move(struct kinematic_obj *obj, Vector2 acceleration){
                 if (obj->rect.x + obj->rect.width / 2 < current->obj->rect.x + current->obj->rect.width / 2){
                     obj->rect.x -= hmove;
                     obj->pos.x -= hmove;
+                    if (obj->velocity.x > 0)
+                        obj->velocity.x = 0;
                 }
                 else{
                     obj->rect.x += hmove;
                     obj->pos.x += hmove;
+                    if (obj->velocity.x < 0)
+                        obj->velocity.x = 0;
                 }
-                obj->velocity.x = 0;
             }else{
                 if (obj->rect.y + obj->rect.height / 2 < current->obj->rect.y + current->obj->rect.height / 2){
                     obj->rect.y -= vmove;
                     obj->pos.y -= vmove;
+                    if (obj->velocity.y > 0)
+                        obj->velocity.y = 0;
                 }
                 else{
                     obj->rect.y += vmove;
                     obj->pos.y += vmove;
+                    if (obj->velocity.y < 0)
+                        obj->velocity.y = 0;
                 }
-                obj->velocity.y = 0;
             }
         }
 iter:        current = current->next;
