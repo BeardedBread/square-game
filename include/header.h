@@ -20,6 +20,7 @@ struct afterImage
     Vector2 right_vertices[BEZIER_POINTS+1];
 
     float opacity;
+    Color color;
     struct afterImage *prev;  
     struct afterImage *next;    
 };
@@ -109,7 +110,7 @@ void create_list(void);
 void add_node(struct kinematic_obj *obj);
 //struct kinematic_obj_node **get_list();
 void free_list(void);
-void create_afterimage(struct player_obj *player);
+void create_afterimage(struct player_obj *player, Color color);
 void remove_last_afterimage(struct player_obj *player);
 void free_afterimages(struct player_obj *player);
 

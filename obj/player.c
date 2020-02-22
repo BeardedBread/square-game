@@ -2,7 +2,7 @@
 
 
 #define PLAYER_ACCEL 1600
-#define AIR_ACCEL 400
+#define AIR_ACCEL 800
 #define RUN_INIT_SPD 230
 #define JUMP_SPD 500
 #define GRAV 1200
@@ -13,21 +13,25 @@ static bool allow_move = true;
 static bool allow_friction = true;
 static bool on_ground = true;
 static bool short_hop = false;
+
 static unsigned int jumps = DEFAULT_JUMP_COUNT;
-static unsigned int frame_counter = 0;
-static int run_dir = 1;
-static enum PLAYER_STATE state_buffer = IDLE;
 static unsigned int dash_count = 1;
+
+static unsigned int frame_counter = 0;
+static unsigned int afterimage_fcounter = 10;
+
+static Color afterimage_c = (Color){0,0,0,255};
+
+static int run_dir = 1;
 static Vector2 dash_vec = (Vector2){0.0, 0.0};
 
 const unsigned int run_start_frames = 10;
 const unsigned int jump_squat_frames = 4;
 const unsigned int land_lag_frames = 6;
 const unsigned int dash_time_frames = 8;
-
-static unsigned int afterimage_fcounter = 10;
 const unsigned int afterimage_frames = 10;
 
+static enum PLAYER_STATE state_buffer = IDLE;
 unsigned int PLAYER_SIZE = 30;
 
 // The player FSM
@@ -210,7 +214,9 @@ void player_input_check(struct player_obj *player){
         break;
     }
 
-    // Add mercy jump here
+    // This accounts for player leaving the ground without jumping (dashing or falling)
+    // Must be done before updating on_ground status
+    // Possible change: store the previous on_ground state
     if (on_ground == true && !place_meeting(&player->kinematic, (Vector2){0,1})  && player->state != JUMP_SQUAT){
         jumps = 0;
         if (player->state != DASHING)
@@ -218,21 +224,24 @@ void player_input_check(struct player_obj *player){
         else
             player->state = JUMPING;
     }
-    
+
     on_ground = place_meeting(&player->kinematic, (Vector2){0,1});
 
-    //if (player->state != DASHING && !place_meeting(&player->kinematic, (Vector2){0,1}) ){
-    if (!on_ground ){
+    // This check is to add gravity, but maybe could be combined with above
+    if (!on_ground){
         accel.y = GRAV;
         if(player->state != DASHING && player->kinematic.velocity.y > 0)
             player->state = FALLING;
     }
-    //if (allow_friction == true)
+
+    // Air friction is less than ground friction
     if (on_ground == true)
         accel.x -= player->kinematic.velocity.x * 7.0;
     else
         accel.x -= player->kinematic.velocity.x * 1.0;
 
+    // Handle wall jumping
+    // TODO: define the wall jump values
     if (IsKeyPressed(JUMP)){
         if (on_ground == false){
             if (place_meeting(&player->kinematic, (Vector2){-8,0})){
@@ -240,15 +249,22 @@ void player_input_check(struct player_obj *player){
                 player->kinematic.velocity.x = 400;
                 player->state = JUMPING;
                 afterimage_fcounter = 5;
+                afterimage_c.r = 128;
+                afterimage_c.g = 128;
+                afterimage_c.b = 128;
             }else if (place_meeting(&player->kinematic, (Vector2){8, 0})){
                 player->kinematic.velocity.y = -350;
                 player->kinematic.velocity.x = -400;
                 player->state = JUMPING;
                 afterimage_fcounter = 5;
+                afterimage_c.r = 128;
+                afterimage_c.g = 128;
+                afterimage_c.b = 128;
             }
         }
     }
 
+    // Handle dashing
     if  (IsKeyPressed(DASH) && dash_count > 0){
         // Determine the direction of dashing
         dash_vec.x = 0;
@@ -258,7 +274,6 @@ void player_input_check(struct player_obj *player){
             --dash_vec.x;
         
         dash_vec.y = 0;
-        //if (player->kinematic.velocity.y > 0)
         if (IsKeyDown(DOWN))
             ++dash_vec.y;
         if (IsKeyDown(UP))
@@ -272,23 +287,26 @@ void player_input_check(struct player_obj *player){
         // Apply the scalar value, normalised to the unit direction
         double m = mag(dash_vec);
         dash_vec.x = dash_vec.x * DASH_SPD/m;
-        //if (player->kinematic.velocity.y == 0)
         dash_vec.y =  dash_vec.y * DASH_SPD/m;
-        //allow_friction = false;
         --dash_count;
-        frame_counter=0;afterimage_fcounter=0;
+        frame_counter=0;
+        afterimage_fcounter=0;
+        afterimage_c.r = 0;
+        afterimage_c.g = 0;
+        afterimage_c.b = 255;
         player->state = DASHING;
     }
+
     move(&player->kinematic, accel);
+
+    // Handle jumping
     /*if (IsKeyPressed(JUMP) && jumps > 0){
         player->state = JUMP_SQUAT;
-        allow_friction = true;
         short_hop = false;
         --jumps;
     }*/
    
-
-
+    // Deform player based on falling speed
     player->kinematic.set_dim_reduction[1] = 0;
     player->kinematic.set_dim_reduction[3] = 0;
     if (on_ground == false){
@@ -304,10 +322,15 @@ void player_input_check(struct player_obj *player){
     //Generate afterimages
     if (afterimage_fcounter < afterimage_frames){
         if(afterimage_fcounter%2 == 0)
-            create_afterimage(player);
+            create_afterimage(player, afterimage_c);
         ++afterimage_fcounter;
     }
 
     // Set the hitbox reductions
     adjust_hitbox(&player->kinematic);
+
+    if (dash_count == 0)
+        player->image->color.b = 255;
+    else
+        player->image->color.b = 0;
 }

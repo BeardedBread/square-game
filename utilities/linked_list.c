@@ -35,7 +35,7 @@ void free_list(){
     kinematic_HEAD = NULL;
 }
 
-void create_afterimage(struct player_obj *player){
+void create_afterimage(struct player_obj *player, Color color){
     struct afterImage *img = malloc(sizeof(struct afterImage));
     if (img){
        for (int i=0;i<=BEZIER_POINTS;++i){
@@ -47,6 +47,7 @@ void create_afterimage(struct player_obj *player){
         img->pos = (Vector2){player->image->center.x, player->image->center.y};
         img->velocity = (Vector2){player->kinematic.velocity.x, player->kinematic.velocity.y};
         img->opacity = 1.0;
+        img->color = color;
         img->prev = NULL;
         if (player->after_img_head == NULL){
             img->next = NULL;
