@@ -4,10 +4,10 @@
 #define PLAYER_ACCEL 1600
 #define AIR_ACCEL 800
 #define RUN_INIT_SPD 230
-#define JUMP_SPD 500
+#define JUMP_SPD 350
 #define GRAV 1200
 #define DASH_SPD 550
-#define DEFAULT_JUMP_COUNT 0
+#define DEFAULT_JUMP_COUNT 1
 
 static bool allow_move = true;
 static bool allow_friction = true;
@@ -174,17 +174,16 @@ void player_input_check(struct player_obj *player){
             }
             if(frame_counter<land_lag_frames){
                     ++frame_counter;
-                //if (IsKeyDown(JUMP))
-                //    state_buffer = JUMP_SQUAT;
+                if (IsKeyDown(JUMP))
+                    state_buffer = JUMP_SQUAT;
             }                              
             else{
-                jumps = DEFAULT_JUMP_COUNT;
                 frame_counter = 0;
-                //if (state_buffer == JUMP_SQUAT){
-                //    player->state = state_buffer;
-                //    --jumps;
-                //}
-                if (IsKeyDown(LEFT) || IsKeyDown(RIGHT))
+                jumps = DEFAULT_JUMP_COUNT;
+                if (state_buffer == JUMP_SQUAT){
+                    player->state = state_buffer;
+                    --jumps;
+                }else if (IsKeyDown(LEFT) || IsKeyDown(RIGHT))
                     player->state = RUNNING;
                 else
                     player->state = IDLE;
@@ -300,11 +299,11 @@ void player_input_check(struct player_obj *player){
     move(&player->kinematic, accel);
 
     // Handle jumping
-    /*if (IsKeyPressed(JUMP) && jumps > 0){
+    if (IsKeyPressed(JUMP) && jumps > 0){
         player->state = JUMP_SQUAT;
         short_hop = false;
         --jumps;
-    }*/
+    }
    
     // Deform player based on falling speed
     player->kinematic.set_dim_reduction[1] = 0;
