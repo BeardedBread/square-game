@@ -6,13 +6,14 @@
 #define RUN_INIT_SPD 230
 #define JUMP_SPD 500
 #define GRAV 1200
-#define DASH_SPD 500
+#define DASH_SPD 550
+#define DEFAULT_JUMP_COUNT 0
 
 static bool allow_move = true;
 static bool allow_friction = true;
 static bool on_ground = true;
 static bool short_hop = false;
-static unsigned int jumps = 1;
+static unsigned int jumps = DEFAULT_JUMP_COUNT;
 static unsigned int frame_counter = 0;
 static int run_dir = 1;
 static enum PLAYER_STATE state_buffer = IDLE;
@@ -168,7 +169,7 @@ void player_input_check(struct player_obj *player){
                     state_buffer = JUMP_SQUAT;
             }                              
             else{
-                jumps = 1;
+                jumps = DEFAULT_JUMP_COUNT;
                 frame_counter = 0;
                 if (state_buffer == JUMP_SQUAT){
                     player->state = state_buffer;
