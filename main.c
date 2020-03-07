@@ -23,7 +23,7 @@
 */
 
 #include "header.h"
-extern struct kinematic_obj_node *kinematic_HEAD;
+struct kinematic_obj_node *kinematic_HEAD = NULL;
 int PLAYER_ACCEL = 1500;
 int JUMP_ACCEL = 15000;
 int JUMP_SPD = 350;
@@ -73,14 +73,14 @@ int main()
     struct squishy_square sqr = init_squishy_square(&player.kinematic, RED);
     player.image = &sqr;
 
-    add_node(&tile);
-    add_node(&tile2);
-    add_node(&tile3);
-    add_node(&tile4);
-    add_node(&tile5);
-    add_node(&tile6);
-    add_node(&tile7);
-    add_node(&player.kinematic);
+    add_node(&tile, &kinematic_HEAD);
+    add_node(&tile2, &kinematic_HEAD);
+    add_node(&tile3, &kinematic_HEAD);
+    add_node(&tile4, &kinematic_HEAD);
+    add_node(&tile5, &kinematic_HEAD);
+    add_node(&tile6, &kinematic_HEAD);
+    add_node(&tile7, &kinematic_HEAD);
+    add_node(&player.kinematic, &kinematic_HEAD);
     
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ int main()
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    free_list();
+    free_list(&kinematic_HEAD);
     free_afterimages(&player);
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
