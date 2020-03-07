@@ -125,6 +125,9 @@ void draw_afterimages(struct player_obj *player);
 struct player_obj init_player_obj();
 void player_input_check(struct player_obj *player);
 
+//Target stuff, target.c
+struct kinematic_obj init_target();
+
 //Debug stuff, debug.c
 void state_string(char *str, enum PLAYER_STATE state);
 void display_input(char *dir);
