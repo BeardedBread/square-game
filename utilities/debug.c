@@ -16,3 +16,10 @@ void state_string(char *str, enum PLAYER_STATE state){
         case TURN_AROUND: sprintf(str, "%s", "TURN_AROUND");break;
     }
 }
+
+void display_input(char *dir){
+    sprintf(dir, " %c \n%c%c%c", IsKeyDown(UP)? '|':' ',
+                                 IsKeyDown(LEFT)? '-':' ',
+                                 IsKeyDown(DOWN)? '|':' ',
+                                 IsKeyDown(RIGHT)? '-':' ');
+}

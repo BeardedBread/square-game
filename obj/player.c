@@ -27,7 +27,7 @@ static Vector2 dash_vec = (Vector2){0.0, 0.0};
 
 const unsigned int run_start_frames = 10;
 const unsigned int jump_squat_frames = 4;
-const unsigned int land_lag_frames = 6;
+const unsigned int land_lag_frames = 2;
 const unsigned int dash_time_frames = 8;
 const unsigned int afterimage_frames = 10;
 
@@ -127,9 +127,6 @@ void player_input_check(struct player_obj *player){
                 }
             }
         break;
-        case TURN_AROUND:
-
-        break;
         case JUMP_SQUAT:
             player->kinematic.set_dim_reduction[1] = 10;
             set_squish_target_offset(player->image, 1, 20);
@@ -189,27 +186,22 @@ void player_input_check(struct player_obj *player){
                     player->state = IDLE;
             }            
         break;
-        case DASH_START:
-
-        break;
         case DASHING:
             player->kinematic.velocity.x = dash_vec.x;
             player->kinematic.velocity.y = dash_vec.y;
             ++frame_counter;
             if (frame_counter > dash_time_frames){
-                player->kinematic.velocity.x *= 0.7;
-                player->kinematic.velocity.y *= 0.7;
-                if (!place_meeting(&player->kinematic, (Vector2){0,1})){
+                player->kinematic.velocity.x *= 0.8;
+                player->kinematic.velocity.y *= 0.8;
+                if (!on_ground){
                     player->state = JUMPING;
                 }
                 else{
-                    player->state = FALLING;
+                    player->state = RUNNING;
                     dash_count = 1;
+                    jumps = 1;
                 }
             }
-        break;
-        case DASH_END:
-
         break;
     }
 
@@ -235,25 +227,19 @@ void player_input_check(struct player_obj *player){
 
     // Air friction is less than ground friction
     if (on_ground == true)
-        accel.x -= player->kinematic.velocity.x * 7.0;
+        accel.x -= player->kinematic.velocity.x * 6.0;
     else
-        accel.x -= player->kinematic.velocity.x * 1.0;
+        accel.x -= player->kinematic.velocity.x * 3.0;
 
     // Handle wall jumping
     // TODO: define the wall jump values
     if (IsKeyPressed(JUMP)){
         if (on_ground == false){
-            if (place_meeting(&player->kinematic, (Vector2){-8,0})){
+            bool left_check = place_meeting(&player->kinematic, (Vector2){-8,0});
+            bool right_check = place_meeting(&player->kinematic, (Vector2){8,0});
+            if (left_check || right_check){
                 player->kinematic.velocity.y = -350;
-                player->kinematic.velocity.x = 400;
-                player->state = JUMPING;
-                afterimage_fcounter = 5;
-                afterimage_c.r = 128;
-                afterimage_c.g = 128;
-                afterimage_c.b = 128;
-            }else if (place_meeting(&player->kinematic, (Vector2){8, 0})){
-                player->kinematic.velocity.y = -350;
-                player->kinematic.velocity.x = -400;
+                player->kinematic.velocity.x = left_check? 400 : -400;
                 player->state = JUMPING;
                 afterimage_fcounter = 5;
                 afterimage_c.r = 128;
@@ -281,6 +267,8 @@ void player_input_check(struct player_obj *player){
         // Default a direction
         if (dash_vec.x == 0 && dash_vec.y == 0){
             dash_vec.x = sign(player->kinematic.velocity.x);
+            if (place_meeting(&player->kinematic, (Vector2){dash_vec.x,0}))
+                dash_vec.y = -1;
         }
         
         // Apply the scalar value, normalised to the unit direction
@@ -296,6 +284,7 @@ void player_input_check(struct player_obj *player){
         player->state = DASHING;
     }
 
+    // All velocity modification must be done before calling the move function
     move(&player->kinematic, accel);
 
     // Handle jumping

@@ -127,3 +127,4 @@ void player_input_check(struct player_obj *player);
 
 //Debug stuff, debug.c
 void state_string(char *str, enum PLAYER_STATE state);
+void display_input(char *dir);

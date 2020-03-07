@@ -17,6 +17,11 @@
 *
 ********************************************************************************************/
 
+/* Issues:
+    Playing with a USB keyboard: Cannot handle simultaneous key input. I think this is more
+    of a GLFW issue.
+*/
+
 #include "header.h"
 extern struct kinematic_obj_node *kinematic_HEAD;
 int PLAYER_ACCEL = 1500;
@@ -31,6 +36,7 @@ int main()
     const int screenHeight = 450;
     char current_state[20];
     char current_spd[50];
+    //char dir[7]; 
 
     InitWindow(screenWidth, screenHeight, "raylib");
 
@@ -104,6 +110,8 @@ int main()
                 DrawFPS(0,0);
                 state_string(current_state, player.state);
                 DrawText(current_state, 250, 0, 12, BLACK);
+                //display_input(dir);
+                //DrawText(dir, 0, 50, 12, BLACK);
                 sprintf(current_spd, "Velocity: {%.2f,%.2f}", player.kinematic.velocity.x,player.kinematic.velocity.y);
                 DrawText(current_spd, 350, 0, 12, BLACK);
             EndMode2D();
