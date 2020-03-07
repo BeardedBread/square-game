@@ -88,8 +88,6 @@ struct squishy_square
     Vector2 right_vertices[BEZIER_POINTS+1];
 };
 
-
-
 // Object functions, kinematics.c
 struct kinematic_obj init_kinematic_obj(int width, int height);
 void move(struct kinematic_obj *obj, Vector2 acceleration);
@@ -105,11 +103,10 @@ Vector2 dir(Vector2 vec);
 void approach(double *val, double target, float f);
 
 // Linked list, linked_list.c
-extern struct kinematic_obj_node *kinematic_HEAD;
 void create_list(void);
-void add_node(struct kinematic_obj *obj);
+void add_node(struct kinematic_obj *obj, struct kinematic_obj_node **HEAD);
 //struct kinematic_obj_node **get_list();
-void free_list(void);
+void free_list(struct kinematic_obj_node **HEAD);
 void create_afterimage(struct player_obj *player, Color color);
 void remove_last_afterimage(struct player_obj *player);
 void free_afterimages(struct player_obj *player);
