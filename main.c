@@ -59,6 +59,9 @@ int main()
     struct kinematic_obj tile5 = init_kinematic_obj(40, 200);
     struct kinematic_obj tile6 = init_kinematic_obj(50, 300);
     struct kinematic_obj tile7 = init_kinematic_obj(50, 300);
+
+    struct kinematic_obj target = init_target(50, 300);
+
     set_position(&player.kinematic, 400, 100);
     set_position(&tile, -50, 380);
     set_position(&tile2, 100, 280);
