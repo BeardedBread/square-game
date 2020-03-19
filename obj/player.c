@@ -1,5 +1,5 @@
 #include "header.h"
-
+#include <raymath.h>
 
 #define PLAYER_ACCEL 1600
 #define AIR_ACCEL 800
@@ -272,9 +272,7 @@ void player_input_check(struct player_obj *player){
         }
         
         // Apply the scalar value, normalised to the unit direction
-        double m = mag(dash_vec);
-        dash_vec.x = dash_vec.x * DASH_SPD/m;
-        dash_vec.y =  dash_vec.y * DASH_SPD/m;
+        dash_vec = Vector2Scale(Vector2Normalize(dash_vec), DASH_SPD);
         --dash_count;
         frame_counter=0;
         afterimage_fcounter=0;

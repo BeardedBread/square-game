@@ -1,5 +1,5 @@
 #include "header.h"
-#include <math.h>
+#include <raymath.h>
 extern struct kinematic_obj_node *kinematic_HEAD;
 
 struct kinematic_obj init_kinematic_obj(int width, int height){
@@ -33,12 +33,11 @@ void move(struct kinematic_obj *obj, Vector2 acceleration){
     // TODO: extend to multiple object collision, Might need to check distance
 
     // Move the object and apply hitbox reduction
-    obj->velocity.x += acceleration.x * delta;
-    obj->pos.x += obj->velocity.x * delta;
+    obj->velocity = Vector2Add(obj->velocity, Vector2Scale(acceleration, delta));
+    obj->pos = Vector2Add(obj->pos, Vector2Scale(obj->velocity, delta));
+
     obj->rect.x = obj->pos.x + obj->dim_reduction[0];
     obj->rect.width = obj->ori_width - obj->dim_reduction[0]  - obj->dim_reduction[2];
-    obj->velocity.y += acceleration.y * delta;
-    obj->pos.y += obj->velocity.y * delta;
     obj->rect.y = obj->pos.y + obj->dim_reduction[1];
     obj->rect.height = obj->ori_height - obj->dim_reduction[1]  - obj->dim_reduction[3];
     
