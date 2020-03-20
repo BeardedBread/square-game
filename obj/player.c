@@ -34,7 +34,7 @@ const unsigned int afterimage_frames = 10;
 static enum PLAYER_STATE state_buffer = IDLE;
 unsigned int PLAYER_SIZE = 30;
 
-extern struct kinematic_obj_node *target_HEAD;
+extern struct target_obj_node *target_HEAD;
 
 // The player FSM
 void player_input_check(struct player_obj *player){
@@ -191,7 +191,20 @@ void player_input_check(struct player_obj *player){
         case DASHING:
             player->kinematic.velocity.x = dash_vec.x;
             player->kinematic.velocity.y = dash_vec.y;
+            /*if (player->kinematic.velocity.x > 0)
+                player->kinematic.dim_reduction[2] = -32;
+            else
+                player->kinematic.dim_reduction[0] = -32;*/
             ++frame_counter;
+
+
+            struct target_obj_node *target_current = target_HEAD;
+            while(target_current){
+                if (collide_target(&player->kinematic, target_current->obj)==true)
+                    printf("collide\n");
+                target_current = target_current->next;
+            }
+
             if (frame_counter > dash_time_frames){
                 player->kinematic.velocity.x *= 0.8;
                 player->kinematic.velocity.y *= 0.8;
@@ -201,7 +214,7 @@ void player_input_check(struct player_obj *player){
                 else{
                     player->state = RUNNING;
                     dash_count = 1;
-                    jumps = 1;
+                    jumps = 1;printf("\n");
                 }
             }
         break;
