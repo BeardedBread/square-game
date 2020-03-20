@@ -34,6 +34,8 @@ const unsigned int afterimage_frames = 10;
 static enum PLAYER_STATE state_buffer = IDLE;
 unsigned int PLAYER_SIZE = 30;
 
+extern struct kinematic_obj_node *target_HEAD;
+
 // The player FSM
 void player_input_check(struct player_obj *player){
     Vector2 accel = (Vector2){

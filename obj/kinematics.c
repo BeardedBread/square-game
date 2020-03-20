@@ -103,13 +103,6 @@ bool place_meeting(struct kinematic_obj *obj, Vector2 dir){
     return false;
 }
 
-Vector2 center(Rectangle rect){
-    return (Vector2){
-        .x = rect.x + rect.width/2, 
-        .y = rect.y + rect.height/2
-    };
-}
-
 void adjust_hitbox(struct kinematic_obj *obj){
     approach(&obj->dim_reduction[0], obj->set_dim_reduction[0], 0.2);
     approach(&obj->dim_reduction[1], obj->set_dim_reduction[1], 0.2);

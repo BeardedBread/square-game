@@ -88,6 +88,11 @@ struct squishy_square
     Vector2 right_vertices[BEZIER_POINTS+1];
 };
 
+struct target_obj
+{
+    double radius;
+    struct kinematic_obj kinematic;
+};
 // Object functions, kinematics.c
 struct kinematic_obj init_kinematic_obj(int width, int height);
 void move(struct kinematic_obj *obj, Vector2 acceleration);
@@ -101,6 +106,7 @@ double mag(Vector2 vec);
 int sign(double val);
 Vector2 dir(Vector2 vec);
 void approach(double *val, double target, float f);
+Vector2 center(Rectangle rect);
 
 // Linked list, linked_list.c
 void create_list(void);
@@ -123,7 +129,7 @@ struct player_obj init_player_obj();
 void player_input_check(struct player_obj *player);
 
 //Target stuff, target.c
-struct kinematic_obj init_target();
+struct target_obj init_target();
 
 //Debug stuff, debug.c
 void state_string(char *str, enum PLAYER_STATE state);

@@ -24,6 +24,7 @@
 
 #include "header.h"
 struct kinematic_obj_node *kinematic_HEAD = NULL;
+struct kinematic_obj_node *target_HEAD = NULL;
 int PLAYER_ACCEL = 1500;
 int JUMP_ACCEL = 15000;
 int JUMP_SPD = 350;
@@ -60,8 +61,6 @@ int main()
     struct kinematic_obj tile6 = init_kinematic_obj(50, 300);
     struct kinematic_obj tile7 = init_kinematic_obj(50, 300);
 
-    struct kinematic_obj target = init_target(50, 300);
-
     set_position(&player.kinematic, 400, 100);
     set_position(&tile, -50, 380);
     set_position(&tile2, 100, 280);
@@ -81,6 +80,11 @@ int main()
     add_node(&tile6, &kinematic_HEAD);
     add_node(&tile7, &kinematic_HEAD);
     add_node(&player.kinematic, &kinematic_HEAD);
+
+
+    struct target_obj target = init_target(50, 300);
+    set_position(&target.kinematic, 150, 380);
+    add_node(&target.kinematic, &target_HEAD);
     
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -110,6 +114,11 @@ int main()
                     DrawRectangleLinesEx(current->obj->rect, 1, BLACK);
                     current = current->next;
                 }
+                current = target_HEAD;
+                while(current){
+                    DrawCircle(current->obj->pos.x, current->obj->pos.y, current->obj->ori_width, BLACK);
+                    current = current->next;
+                }
                 DrawFPS(0,0);
                 state_string(current_state, player.state);
                 DrawText(current_state, 250, 0, 12, BLACK);
@@ -127,6 +136,7 @@ int main()
     // De-Initialization
     //--------------------------------------------------------------------------------------
     free_list(&kinematic_HEAD);
+    free_list(&target_HEAD);
     free_afterimages(&player);
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
