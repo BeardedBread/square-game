@@ -45,3 +45,27 @@ bool collide_target(struct kinematic_obj *obj, struct target_obj *target){
         return true;
     return false;
 }
+
+void add_target_node(struct target_obj *obj, struct target_obj_node **HEAD){
+    struct target_obj_node *node = malloc(sizeof(struct target_obj_node));
+    if (node){
+        node->obj = obj;
+        node->next = NULL;
+    }
+    if (*HEAD != NULL)
+        node->next = *HEAD;
+    
+    *HEAD = node;
+}
+
+void free_target_list(struct target_obj_node **HEAD){
+    struct target_obj_node *current = *HEAD;
+    struct target_obj_node *next;
+    while(current){
+        next = current->next;
+        current->next = NULL;
+        free(current);
+        current = next;
+    }
+    *HEAD = NULL;
+}
