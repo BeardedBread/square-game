@@ -8,3 +8,10 @@ int sign(double val){
 void approach(double *val, double target, float f){
     *val += (target - *val) * f;
 }
+
+Vector2 center(Rectangle rect){
+    return (Vector2){
+        .x = rect.x + rect.width/2, 
+        .y = rect.y + rect.height/2
+    };
+}
