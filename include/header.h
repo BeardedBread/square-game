@@ -1,5 +1,6 @@
 #include <raylib.h>
 #include <stdio.h>
+#include <stdlib.h> 
 
 // Global Constants
 #define BEZIER_POINTS 5
@@ -93,6 +94,12 @@ struct target_obj
     double radius;
     struct kinematic_obj kinematic;
 };
+struct target_obj_node
+{
+    struct target_obj *obj;
+    struct target_obj_node *next;
+};
+
 // Object functions, kinematics.c
 struct kinematic_obj init_kinematic_obj(int width, int height);
 void move(struct kinematic_obj *obj, Vector2 acceleration);
@@ -100,6 +107,9 @@ void set_position(struct kinematic_obj *obj, int x, int y);
 bool place_meeting(struct kinematic_obj *obj, Vector2 dir);
 void scale_rect(struct kinematic_obj *obj);
 void adjust_hitbox(struct kinematic_obj *obj);
+void add_kinematic_node(struct kinematic_obj *obj, struct kinematic_obj_node **HEAD);
+//struct kinematic_obj_node **get_list();
+void free_kinematic_list(struct kinematic_obj_node **HEAD);
 
 // Math functions, math.c
 double mag(Vector2 vec);
@@ -110,12 +120,6 @@ Vector2 center(Rectangle rect);
 
 // Linked list, linked_list.c
 void create_list(void);
-void add_node(struct kinematic_obj *obj, struct kinematic_obj_node **HEAD);
-//struct kinematic_obj_node **get_list();
-void free_list(struct kinematic_obj_node **HEAD);
-void create_afterimage(struct player_obj *player, Color color);
-void remove_last_afterimage(struct player_obj *player);
-void free_afterimages(struct player_obj *player);
 
 // Squishy Square functions, squishy.c
 struct squishy_square init_squishy_square(struct kinematic_obj *parent, Color color);
@@ -127,9 +131,15 @@ void draw_afterimages(struct player_obj *player);
 //Player stuff, player.c
 struct player_obj init_player_obj();
 void player_input_check(struct player_obj *player);
+void create_afterimage(struct player_obj *player, Color color);
+void remove_last_afterimage(struct player_obj *player);
+void free_afterimages(struct player_obj *player);
 
 //Target stuff, target.c
 struct target_obj init_target();
+void free_target_list(struct target_obj_node **HEAD);
+void add_target_node(struct target_obj *obj, struct target_obj_node **HEAD);
+bool collide_target(struct kinematic_obj *obj, struct target_obj *target);
 
 //Debug stuff, debug.c
 void state_string(char *str, enum PLAYER_STATE state);

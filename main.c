@@ -24,7 +24,7 @@
 
 #include "header.h"
 struct kinematic_obj_node *kinematic_HEAD = NULL;
-struct kinematic_obj_node *target_HEAD = NULL;
+struct target_obj_node *target_HEAD = NULL;
 int PLAYER_ACCEL = 1500;
 int JUMP_ACCEL = 15000;
 int JUMP_SPD = 350;
@@ -72,23 +72,22 @@ int main()
     struct squishy_square sqr = init_squishy_square(&player.kinematic, RED);
     player.image = &sqr;
 
-    add_node(&tile, &kinematic_HEAD);
-    add_node(&tile2, &kinematic_HEAD);
-    add_node(&tile3, &kinematic_HEAD);
-    add_node(&tile4, &kinematic_HEAD);
-    add_node(&tile5, &kinematic_HEAD);
-    add_node(&tile6, &kinematic_HEAD);
-    add_node(&tile7, &kinematic_HEAD);
-    add_node(&player.kinematic, &kinematic_HEAD);
+    add_kinematic_node(&tile, &kinematic_HEAD);
+    add_kinematic_node(&tile2, &kinematic_HEAD);
+    add_kinematic_node(&tile3, &kinematic_HEAD);
+    add_kinematic_node(&tile4, &kinematic_HEAD);
+    add_kinematic_node(&tile5, &kinematic_HEAD);
+    add_kinematic_node(&tile6, &kinematic_HEAD);
+    add_kinematic_node(&tile7, &kinematic_HEAD);
+    add_kinematic_node(&player.kinematic, &kinematic_HEAD);
 
 
     struct target_obj target = init_target(50, 300);
     set_position(&target.kinematic, 150, 380);
-    add_node(&target.kinematic, &target_HEAD);
+    add_target_node(&target, &target_HEAD);
     
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
-    struct kinematic_obj_node *current;
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
@@ -107,17 +106,19 @@ int main()
             ClearBackground(RAYWHITE);
             draw_afterimages(&player);
             draw_squishy(&sqr);
-
+            struct kinematic_obj_node *current;
+            struct target_obj_node *target_current;
             BeginMode2D(camera);
                 current = kinematic_HEAD;
                 while(current){
                     DrawRectangleLinesEx(current->obj->rect, 1, BLACK);
                     current = current->next;
                 }
-                current = target_HEAD;
-                while(current){
-                    DrawCircle(current->obj->pos.x, current->obj->pos.y, current->obj->ori_width, BLACK);
-                    current = current->next;
+                target_current = target_HEAD;
+                while(target_current){
+                    DrawCircle(target_current->obj->kinematic.pos.x, target_current->obj->kinematic.pos.y, 
+                    target_current->obj->kinematic.ori_width, BLACK);
+                    target_current = target_current->next;
                 }
                 DrawFPS(0,0);
                 state_string(current_state, player.state);
@@ -135,8 +136,8 @@ int main()
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    free_list(&kinematic_HEAD);
-    free_list(&target_HEAD);
+    free_kinematic_list(&kinematic_HEAD);
+    free_target_list(&target_HEAD);
     free_afterimages(&player);
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------

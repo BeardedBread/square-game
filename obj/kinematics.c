@@ -109,3 +109,34 @@ void adjust_hitbox(struct kinematic_obj *obj){
     approach(&obj->dim_reduction[2], obj->set_dim_reduction[2], 0.2);
     approach(&obj->dim_reduction[3], obj->set_dim_reduction[3], 0.2);
 }
+
+// Placeholder collision checking structure. Use linked list for now
+// Need to implement some sort of tree structure for efficient collision checking
+
+void add_kinematic_node(struct kinematic_obj *obj, struct kinematic_obj_node **HEAD){
+    struct kinematic_obj_node *node = malloc(sizeof(struct kinematic_obj_node));
+    if (node){
+        node->obj = obj;
+        node->next = NULL;
+    }
+    if (*HEAD != NULL)
+        node->next = *HEAD;
+    
+    *HEAD = node;
+}
+
+/**struct kinematic_obj_node **get_list(){
+    return &kinematic_HEAD;
+}*/
+
+void free_kinematic_list(struct kinematic_obj_node **HEAD){
+    struct kinematic_obj_node *current = *HEAD;
+    struct kinematic_obj_node *next;
+    while(current){
+        next = current->next;
+        current->next = NULL;
+        free(current);
+        current = next;
+    }
+    *HEAD = NULL;
+}
