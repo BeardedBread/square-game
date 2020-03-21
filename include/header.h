@@ -35,6 +35,7 @@ struct kinematic_obj
     int ori_height;
     double dim_reduction[4];
     double set_dim_reduction[4];
+    double x_shear;
 };
 
 struct kinematic_obj_node

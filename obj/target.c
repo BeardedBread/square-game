@@ -27,13 +27,23 @@ bool collide_target(struct kinematic_obj *obj, struct target_obj *target){
     Vector2 n = Vector2Subtract(target_center, obj_center);
     n = Vector2Normalize(n);
 
-    Vector2 pos_check = obj->pos;
+    Rectangle hitbox = obj->rect;
+    if (obj->x_shear > 0.5){
+        if (obj->x_shear > 0){
+            hitbox.x -= obj->x_shear * obj->ori_width / 2;
+            hitbox.width += obj->x_shear * obj->ori_width;
+        }else{
+            hitbox.x -= -obj->x_shear * obj->ori_width / 2;
+            hitbox.width += -obj->x_shear * obj->ori_width;
+        }
+    }
+    Vector2 pos_check = (Vector2){hitbox.x, hitbox.y};
     double obj_proj1 = Vector2DotProduct(pos_check, n);
-    pos_check.x += obj->rect.width;
+    pos_check.x += hitbox.width;
     double obj_proj2 = Vector2DotProduct(pos_check, n);
-    pos_check.y += obj->rect.height;
+    pos_check.y += hitbox.height;
     double obj_proj3 = Vector2DotProduct(pos_check, n);
-    pos_check.x -= obj->rect.width;
+    pos_check.x -= hitbox.width;
     double obj_proj4 = Vector2DotProduct(pos_check, n);
 
     double min_proj = fmin(fmin(fmin(obj_proj1, obj_proj2), obj_proj3), obj_proj4);

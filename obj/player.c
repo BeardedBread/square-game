@@ -299,7 +299,7 @@ void player_input_check(struct player_obj *player){
 
     // All velocity modification must be done before calling the move function
     move(&player->kinematic, accel);
-
+    player->kinematic.x_shear = -player->kinematic.velocity.x / 600;
     // Handle jumping
     if (IsKeyPressed(JUMP) && jumps > 0){
         player->state = JUMP_SQUAT;

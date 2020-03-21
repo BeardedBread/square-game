@@ -124,7 +124,7 @@ void calc_offsets(struct squishy_square *square){
 void draw_squishy(struct squishy_square *square){
     rlPushMatrix();
         // TODO: Need a correction term to put the square in the box????
-        shear_mat[4] = -square->parent->velocity.x / 600;
+        shear_mat[4] = square->parent->x_shear;
         rlMultMatrixf(shear_mat);
         translate_mat[12] = square->center.x;
         translate_mat[13] = square->center.y;

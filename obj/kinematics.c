@@ -9,7 +9,8 @@ struct kinematic_obj init_kinematic_obj(int width, int height){
         .rect = {0,0,width,height},
         .ori_width = width,
         .ori_height = height,
-        .dim_reduction = {0,0,0,0}
+        .dim_reduction = {0,0,0,0},
+        .x_shear = 0.0
     };
 
     return obj;
