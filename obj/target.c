@@ -9,6 +9,27 @@ struct target_obj init_target(){
     };
 }
 
+// TODO: Implement a grid collision system for target
+// This is okay since target is always constant size
+// Partition the screen into apropriate grid sizes
+// Check which grid requires check (i.e. which grid is the player overlapping)
+// For each overlapped grid, check for collision with target in each (if any)
+// If the target moved, the grid must be updated
+// Min grid size 2*Player size, due to the shearing
+
+// The grid will be an N*N array of linked list
+// Please remember to go through each element,
+// and free the linked list
+
+// Removal of target
+// It is possible for a target to occupy more than a grid
+// Thus, need to check for that
+// Then, go through those grids to mark them destroyed
+// Only free them if the game ends 
+// This will allow easy restart, no need to recreate objects
+
+// The construction of the grid will take in a linked list all targets.
+// So no need to modify the existing linked list
 bool collide_target(struct kinematic_obj *obj, struct target_obj *target){
     /* The method is based off SAT
     */
