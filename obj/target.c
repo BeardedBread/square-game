@@ -1,15 +1,18 @@
 #include "header.h"
 #include <raymath.h>
 #include <math.h>
+
+#define GRID_SIZE 32
 // Target is circular, thus a kinematic obj has w=h
 struct target_obj init_target(){
     return (struct target_obj){
         .radius = 12,
-        .kinematic = init_kinematic_obj(12, 12)
+        .kinematic = init_kinematic_obj(12, 12),
+        .destroyed = false
     };
 }
 
-// TODO: Implement a grid collision system for target
+// SUGGESTION: Implement a grid collision system for target
 // This is okay since target is always constant size
 // Partition the screen into apropriate grid sizes
 // Check which grid requires check (i.e. which grid is the player overlapping)
@@ -30,16 +33,22 @@ struct target_obj init_target(){
 
 // The construction of the grid will take in a linked list all targets.
 // So no need to modify the existing linked list
+// However, it might be possible to make it an array
 bool collide_target(struct kinematic_obj *obj, struct target_obj *target){
     /* The method is based off SAT
     */
+    if (target->destroyed)
+        return false;
+  
     Vector2 obj_center = center(obj->rect);
     Vector2 target_center = center(target->kinematic.rect);
 
     float dist = Vector2Distance(obj_center, target_center);
 
-    if (dist < target->radius)
+    if (dist < target->radius){
+        target->destroyed = true;
         return true;
+    }
 
     double max_dim = fmax(obj->rect.width, obj->rect.height);
     if (dist > max_dim + target->radius)
@@ -72,8 +81,10 @@ bool collide_target(struct kinematic_obj *obj, struct target_obj *target){
    
     double target_proj = Vector2DotProduct(target_center, n);
 
-    if (!(max_proj < target_proj - target->radius) && !(min_proj > target_proj + target->radius))
+    if (!(max_proj < target_proj - target->radius) && !(min_proj > target_proj + target->radius)){
+        target->destroyed = true;
         return true;
+    }
     return false;
 }
 

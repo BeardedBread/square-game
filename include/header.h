@@ -94,6 +94,7 @@ struct target_obj
 {
     double radius;
     struct kinematic_obj kinematic;
+    bool destroyed;
 };
 struct target_obj_node
 {

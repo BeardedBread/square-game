@@ -45,6 +45,7 @@ int main()
     camera.offset = (Vector2){0,0};
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
+    
 
     struct player_obj player = {
         .kinematic = init_kinematic_obj(PLAYER_SIZE, PLAYER_SIZE),
@@ -71,6 +72,7 @@ int main()
     set_position(&tile7, 700, 80);
     struct squishy_square sqr = init_squishy_square(&player.kinematic, RED);
     player.image = &sqr;
+    //camera.target = player.kinematic.pos;
 
     add_kinematic_node(&tile, &kinematic_HEAD);
     add_kinematic_node(&tile2, &kinematic_HEAD);
@@ -83,7 +85,7 @@ int main()
 
 
     struct target_obj target = init_target(50, 300);
-    set_position(&target.kinematic, 150, 380);
+    set_position(&target.kinematic, 300, 100);
     add_target_node(&target, &target_HEAD);
     
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
@@ -104,20 +106,24 @@ int main()
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
-            draw_afterimages(&player);
-            draw_squishy(&sqr);
             struct kinematic_obj_node *current;
             struct target_obj_node *target_current;
+            // Camera target follows player
+            camera.target = (Vector2){ player.kinematic.pos.x -screenWidth/2, player.kinematic.pos.y -screenHeight/2, };
             BeginMode2D(camera);
+                draw_afterimages(&player);
+                draw_squishy(&sqr);
                 current = kinematic_HEAD;
                 while(current){
-                    DrawRectangleLinesEx(current->obj->rect, 1, BLACK);
+                    if (current->obj != &player.kinematic)
+                        DrawRectangleLinesEx(current->obj->rect, 1, BLACK);
                     current = current->next;
                 }
                 target_current = target_HEAD;
                 while(target_current){
-                    DrawCircle(target_current->obj->kinematic.pos.x, target_current->obj->kinematic.pos.y, 
-                    target_current->obj->kinematic.ori_width, BLACK);
+                    if (!target_current->obj->destroyed)
+                        DrawCircle(target_current->obj->kinematic.pos.x, target_current->obj->kinematic.pos.y, 
+                        target_current->obj->kinematic.ori_width, BLACK);
                     target_current = target_current->next;
                 }
                 DrawFPS(0,0);
