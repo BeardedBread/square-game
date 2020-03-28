@@ -200,8 +200,9 @@ void player_input_check(struct player_obj *player){
 
             struct target_obj_node *target_current = target_HEAD;
             while(target_current){
-                if (collide_target(&player->kinematic, target_current->obj)==true)
-                    printf("collide\n");
+                if (collide_target(&player->kinematic, target_current->obj)==true){
+                    dash_count = 1;
+                }
                 target_current = target_current->next;
             }
 
@@ -242,9 +243,9 @@ void player_input_check(struct player_obj *player){
 
     // Air friction is less than ground friction
     if (on_ground == true)
-        accel.x -= player->kinematic.velocity.x * 6.0;
+        accel.x -= player->kinematic.velocity.x * 8.0;
     else
-        accel.x -= player->kinematic.velocity.x * 3.0;
+        accel.x -= player->kinematic.velocity.x * 4.0;
 
     // Handle wall jumping
     // TODO: define the wall jump values
@@ -312,9 +313,9 @@ void player_input_check(struct player_obj *player){
     player->kinematic.set_dim_reduction[3] = 0;
     if (on_ground == false){
         if (player->kinematic.velocity.y < 0)
-            player->kinematic.set_dim_reduction[3] = -player->kinematic.velocity.y / 40;
+            player->kinematic.set_dim_reduction[3] = - fmax(player->kinematic.velocity.y / 40, -32) ;
         if (player->kinematic.velocity.y > 0)
-            player->kinematic.set_dim_reduction[1] = player->kinematic.velocity.y / 40;
+            player->kinematic.set_dim_reduction[1] = fmin(player->kinematic.velocity.y / 40, 32);
 
         set_squish_target_offset(player->image, 1, player->kinematic.velocity.y / 30);
         set_squish_target_offset(player->image, 3, -player->kinematic.velocity.y / 30);
