@@ -21,6 +21,10 @@ void main_menu_check(){
         ++option;
 }
 
+int get_selected_options(){
+        return option;
+}
+
 void draw_menu(){
     DrawFPS(0,0);
     for(unsigned int i=0;i<2;++i){

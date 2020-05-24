@@ -33,7 +33,7 @@ int GRAV = 1000;
 const int screenWidth = 800;
 const int screenHeight = 450;
 
-void main_menu(Camera2D camera);
+int main_menu(Camera2D camera);
 void play_test_level(Camera2D camera);
 
 int main() 
@@ -49,25 +49,36 @@ int main()
     camera.offset = (Vector2){0,0};
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
-    while (!WindowShouldClose())
-        //play_test_level(camera);
-        main_menu(camera);
-    CloseWindow();        // Close window and OpenGL context
+    while (!WindowShouldClose()){
+        int selected = main_menu(camera);
+        switch(selected){
+            case 0:
+                play_test_level(camera);
+                break;
+            case 1:
+                goto quit;
+            default:
+                puts("Unknown Command");
+                goto quit;
+        }
+    }
+quit:    CloseWindow(); 
 }
 
-
-void main_menu(Camera2D camera){
+int main_menu(Camera2D camera){
     camera.target = (Vector2){0,0};
 
 
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         main_menu_check();
+        if (IsKeyPressed(KEY_SPACE)){
+            return get_selected_options();
+        }
         BeginDrawing();
             ClearBackground(RAYWHITE);
             draw_menu();
         EndDrawing();
-
     }   
 }
 
@@ -119,11 +130,13 @@ void play_test_level(Camera2D camera){
     
     //--------------------------------------------------------------------------------------
     // Main game loop
-    while (!WindowShouldClose() || IsKeyPressed(KEY_Q))    // Detect window close button or ESC key
+    while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         // Update
         //----------------------------------------------------------------------------------
-
+        if (IsKeyPressed(KEY_Q)){
+            break;
+        }
         player_input_check(&player);
 
         update_squishy(&sqr);
