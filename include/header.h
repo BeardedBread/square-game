@@ -143,6 +143,10 @@ void free_target_list(struct target_obj_node **HEAD);
 void add_target_node(struct target_obj *obj, struct target_obj_node **HEAD);
 bool collide_target(struct kinematic_obj *obj, struct target_obj *target);
 
+//Menu
+void draw_menu();
+void main_menu_check();
+
 //Debug stuff, debug.c
 void state_string(char *str, enum PLAYER_STATE state);
 void display_input(char *dir);

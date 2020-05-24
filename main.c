@@ -29,23 +29,52 @@ int PLAYER_ACCEL = 1500;
 int JUMP_ACCEL = 15000;
 int JUMP_SPD = 350;
 int GRAV = 1000;
+
+const int screenWidth = 800;
+const int screenHeight = 450;
+
+void main_menu(Camera2D camera);
+void play_test_level(Camera2D camera);
+
 int main() 
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
-    char current_state[20];
-    char current_spd[50];
     //char dir[7]; 
 
     InitWindow(screenWidth, screenHeight, "raylib");
+    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
     Camera2D camera = { 0 };
     camera.offset = (Vector2){0,0};
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
-    
+    while (!WindowShouldClose())
+        //play_test_level(camera);
+        main_menu(camera);
+    CloseWindow();        // Close window and OpenGL context
+}
+
+
+void main_menu(Camera2D camera){
+    camera.target = (Vector2){0,0};
+
+
+    while (!WindowShouldClose())    // Detect window close button or ESC key
+    {
+        main_menu_check();
+        BeginDrawing();
+            ClearBackground(RAYWHITE);
+            draw_menu();
+        EndDrawing();
+
+    }   
+}
+
+void play_test_level(Camera2D camera){
+
+    char current_state[20];
+    char current_spd[50];
 
     struct player_obj player = {
         .kinematic = init_kinematic_obj(PLAYER_SIZE, PLAYER_SIZE),
@@ -88,10 +117,9 @@ int main()
     set_position(&target.kinematic, 300, 100);
     add_target_node(&target, &target_HEAD);
     
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
     // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+    while (!WindowShouldClose() || IsKeyPressed(KEY_Q))    // Detect window close button or ESC key
     {
         // Update
         //----------------------------------------------------------------------------------
@@ -145,8 +173,7 @@ int main()
     free_kinematic_list(&kinematic_HEAD);
     free_target_list(&target_HEAD);
     free_afterimages(&player);
-    CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 
-    return 0;
+    return;
 }
