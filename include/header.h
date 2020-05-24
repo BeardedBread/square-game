@@ -146,6 +146,7 @@ bool collide_target(struct kinematic_obj *obj, struct target_obj *target);
 //Menu
 void draw_menu();
 void main_menu_check();
+int get_selected_options();
 
 //Debug stuff, debug.c
 void state_string(char *str, enum PLAYER_STATE state);
