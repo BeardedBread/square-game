@@ -106,6 +106,7 @@ struct target_obj_node
 struct kinematic_obj init_kinematic_obj(int width, int height);
 void move(struct kinematic_obj *obj, Vector2 acceleration);
 void set_position(struct kinematic_obj *obj, int x, int y);
+void set_velocity(struct kinematic_obj *obj, int velx, int vely);
 bool place_meeting(struct kinematic_obj *obj, Vector2 dir);
 void scale_rect(struct kinematic_obj *obj);
 void adjust_hitbox(struct kinematic_obj *obj);

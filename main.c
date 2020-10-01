@@ -23,6 +23,9 @@
 */
 
 #include "header.h"
+#include <sys/time.h>
+#include <stdio.h>
+
 struct kinematic_obj_node *kinematic_HEAD = NULL;
 struct target_obj_node *target_HEAD = NULL;
 int PLAYER_ACCEL = 1500;
@@ -84,8 +87,6 @@ int main_menu(Camera2D camera){
 
 void play_test_level(Camera2D camera){
 
-    char current_state[20];
-    char current_spd[50];
 
     struct player_obj player = {
         .kinematic = init_kinematic_obj(PLAYER_SIZE, PLAYER_SIZE),
@@ -127,7 +128,12 @@ void play_test_level(Camera2D camera){
     struct target_obj target = init_target(50, 300);
     set_position(&target.kinematic, 300, 100);
     add_target_node(&target, &target_HEAD);
-    
+
+    unsigned int elapsed_time[3] = {0};
+
+    char current_state[20];
+    char current_spd[50];
+    char current_time[15];
     //--------------------------------------------------------------------------------------
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -144,6 +150,9 @@ void play_test_level(Camera2D camera){
                 target_current = target_current->next;
             }
             set_position(&player.kinematic, 400, 100);
+            set_velocity(&player.kinematic, 0, 0);
+            memset(elapsed_time, 0, sizeof(elapsed_time));
+            //continue;
         }
 
         player_input_check(&player);
@@ -183,11 +192,20 @@ void play_test_level(Camera2D camera){
                 //DrawText(dir, 0, 50, 12, BLACK);
                 sprintf(current_spd, "Velocity: {%.2f,%.2f}", player.kinematic.velocity.x,player.kinematic.velocity.y);
                 DrawText(current_spd, 350, 0, 12, BLACK);
+                sprintf(current_time, "%u:%u.%03u", elapsed_time[2], elapsed_time[1], elapsed_time[0]);
+                DrawText(current_time, 350, 150, 12, BLACK);
             EndMode2D();
 
         EndDrawing();
         remove_last_afterimage(&player);
         //----------------------------------------------------------------------------------
+
+        float elapsed = GetFrameTime();
+        elapsed_time[0] += GetFrameTime() * 1000;
+        elapsed_time[1] += elapsed_time[0] / 1000;
+        elapsed_time[0] %= 1000;
+        elapsed_time[2] += elapsed_time[1] / 60;
+        elapsed_time[1] %= 60;
     }
 
     // De-Initialization
