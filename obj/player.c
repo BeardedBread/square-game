@@ -1,12 +1,12 @@
 #include "header.h"
 #include <raymath.h>
 
-#define PLAYER_ACCEL 1600
-#define AIR_ACCEL 800
-#define RUN_INIT_SPD 230
+#define PLAYER_ACCEL 2750
+#define AIR_ACCEL 900
+#define RUN_INIT_SPD 250
 #define JUMP_SPD 350
 #define GRAV 1200
-#define DASH_SPD 550
+#define DASH_SPD 600
 #define DEFAULT_JUMP_COUNT 1
 
 static bool allow_move = true;
