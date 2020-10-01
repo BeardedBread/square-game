@@ -137,6 +137,15 @@ void play_test_level(Camera2D camera){
         if (IsKeyPressed(KEY_Q)){
             break;
         }
+        if (IsKeyPressed(KEY_R)){
+            struct target_obj_node *target_current = target_HEAD;
+            while(target_current){
+                target_current->obj->destroyed = false;
+                target_current = target_current->next;
+            }
+            set_position(&player.kinematic, 400, 100);
+        }
+
         player_input_check(&player);
 
         update_squishy(&sqr);

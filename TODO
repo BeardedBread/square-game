@@ -1,0 +1,11 @@
+Add Level Restart Key:
+- Easiest: Go to end of level to deallocate everything and reconstruct all
+Add Timer function:
+- Need to reset on level start
+Add Level Complete:
+- When all targets on the level is destroyed
+- Print a complete text
+- R to reset, continue to return to menu
+Add Level start:
+- countdown before allow player movement
+- Print Go on screen
