@@ -1,4 +1,5 @@
-SRC_FILES = $(wildcard *.c) $(wildcard obj/*.c) $(wildcard utilities/*.c)
+SRC_DIRECTORY= ./ ./obj ./screens ./utilities
+SRC_FILES = $(foreach dir, $(SRC_DIRECTORY), $(wildcard $(dir)/*.c))
 EXE = main
 BUILD_DIR = build/
 OBJ = $(patsubst %.c,$(BUILD_DIR)%.o,$(SRC_FILES))
@@ -22,9 +23,7 @@ $(EXE): $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 $(BUILD_DIR)%.o: %.c
-	@ mkdir -p $(BUILD_DIR)
-	@ mkdir -p $(BUILD_DIR)/obj
-	@ mkdir -p $(BUILD_DIR)/utilities
+	@ $(foreach dir, $(SRC_DIRECTORY), mkdir -p $(BUILD_DIR)/$(dir))
 	@ $(CC) $(CFLAGS) -o $@ -c $<
 
 -include $(DEP)

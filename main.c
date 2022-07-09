@@ -24,6 +24,7 @@
 
 #include "header.h"
 #include <sys/time.h>
+#include <string.h>
 #include <stdio.h>
 
 struct kinematic_obj_node *kinematic_HEAD = NULL;
